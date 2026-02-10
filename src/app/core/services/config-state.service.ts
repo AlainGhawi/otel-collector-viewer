@@ -10,7 +10,6 @@ import { ConfigValidatorService } from './config-validator.service';
 export class ConfigStateService {
   private readonly _config = signal<OtelConfig>(createEmptyConfig());
   private readonly _rawYaml = signal<string>('');
-  private readonly _hasUnsavedChanges = signal<boolean>(false);
   private readonly _errors = signal<ParseError[]>([]);
   private readonly _validationIssues = signal<ValidationIssue[]>([]);
   private readonly _selectedNode = signal<NodeSelection | null>(null);
@@ -23,9 +22,6 @@ export class ConfigStateService {
 
   /** Current YAML string */
   readonly rawYaml = this._rawYaml.asReadonly();
-
-  /** Whether the config has been modified since last save/load */
-  readonly hasUnsavedChanges = this._hasUnsavedChanges.asReadonly();
 
   /** Any parsing or validation errors */
   readonly errors = this._errors.asReadonly();
@@ -57,7 +53,6 @@ export class ConfigStateService {
   updateConfig(config: OtelConfig): void {
     this._config.set(config);
     this._rawYaml.set(this.serializer.serializeToYaml(config));
-    this._hasUnsavedChanges.set(true);
     this._errors.set([]);
   }
 
@@ -71,7 +66,6 @@ export class ConfigStateService {
       this._config.set(config);
       this._rawYaml.set(yamlString);
       this._errors.set([]);
-      this._hasUnsavedChanges.set(false);
     } catch (error) {
       this._errors.set([this.extractParseError(error)]);
     }
@@ -86,7 +80,6 @@ export class ConfigStateService {
       config = this.validateAndRepair(config);
       this._config.set(config);
       this._rawYaml.set(yamlString);
-      this._hasUnsavedChanges.set(true);
       this._errors.set([]);
     } catch (error) {
       // Keep the raw YAML even if it doesn't parse — user is editing
@@ -108,7 +101,6 @@ export class ConfigStateService {
   reset(): void {
     this._config.set(createEmptyConfig());
     this._rawYaml.set('');
-    this._hasUnsavedChanges.set(false);
     this._errors.set([]);
     this._validationIssues.set([]);
   }
@@ -152,7 +144,6 @@ export class ConfigStateService {
     this._validationIssues.set(issues);
     this._config.set(updatedConfig);
     this._rawYaml.set(this.serializer.serializeToYaml(updatedConfig));
-    this._hasUnsavedChanges.set(true);
     this._selectedNode.set(null);
   }
 

@@ -21,12 +21,6 @@
         </button>
     </div>
 
-    <div class="toolbar-right">
-        @if (state.hasUnsavedChanges()) {
-        <span class="unsaved-badge">● Unsaved changes</span>
-        }
-    </div>
-
     <!-- Hidden file input -->
     <input type="file" #fileInput accept=".yaml,.yml" (change)="onFileSelected($event)" style="display: none" />
 </header>

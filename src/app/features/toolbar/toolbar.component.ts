@@ -56,10 +56,6 @@ export class ToolbarComponent {
   }
 
   reset(): void {
-    if (this.state.hasUnsavedChanges()) {
-      const confirmed = confirm('You have unsaved changes. Are you sure you want to clear?');
-      if (!confirmed) return;
-    }
     this.state.reset();
   }
 }
