@@ -2,54 +2,44 @@
   <div class="panel-header">
     <h3>OTel Collector Yaml Configuration</h3>
     <div class="panel-actions">
-      <button
-        class="btn btn-sm"
-        (click)="reformatYaml()"
-        [disabled]="state.errors().length > 0"
+      <button class="btn btn-sm" (click)="reformatYaml()" [disabled]="state.errors().length > 0"
         title="Reformat YAML (parse → serialize)">
         ✨ Reformat
       </button>
-      <button 
-        class="btn btn-sm" 
-        (click)="copyToClipboard()" 
-        title="Copy to clipboard">
+      <button class="btn btn-sm" (click)="copyToClipboard()" title="Copy to clipboard">
         📋 Copy
       </button>
     </div>
   </div>
 
   @if (state.errors().length > 0) {
-    <div class="error-banner">
-      @for (error of state.errors(); track error.message) {
-        <div class="error-item">
-          <p class="error-summary" (click)="goToLine(error.line)">
-            ⚠️ {{ error.message }}
-            @if (error.line) {
-              <span class="error-line-link">→ line {{ error.line }}</span>
-            }
-          </p>
-          @if (error.fullError && error.fullError !== error.message) {
-            <button class="error-toggle" (click)="toggleErrorDetail(error.message)">
-              {{ expandedErrors.has(error.message) ? '▼ Hide detail' : '▶ Show detail' }}
-            </button>
-            @if (expandedErrors.has(error.message)) {
-              <pre class="error-detail">{{ error.fullError }}</pre>
-            }
-          }
-        </div>
+  <div class="error-banner">
+    @for (error of state.errors(); track error.message) {
+    <div class="error-item">
+      <p class="error-summary" (click)="goToLine(error.line)" (keydown.enter)="goToLine(error.line)" tabindex="0"
+        role="button">
+        @if (error.fullError && error.fullError !== error.message) {
+        <button class="error-toggle" (click)="toggleErrorDetail(error.message)">
+          {{ expandedErrors.has(error.message) ? '▼ Hide detail' : '▶ Show detail' }}
+        </button>
+        @if (expandedErrors.has(error.message)) {
+      <pre class="error-detail">{{ error.fullError }}</pre>
+      }
       }
     </div>
+    }
+  </div>
   }
 
   @if (state.validationIssues().length > 0) {
-    <div class="validation-banner">
-      @for (issue of state.validationIssues(); track issue.message) {
-        <p [class]="'issue-' + issue.severity">
-          {{ issue.severity === 'error' ? '🔴' : issue.severity === 'warning' ? '🟡' : 'ℹ️' }}
-          {{ issue.message }}
-        </p>
-      }
-    </div>
+  <div class="validation-banner">
+    @for (issue of state.validationIssues(); track issue.message) {
+    <p [class]="'issue-' + issue.severity">
+      {{ issue.severity === 'error' ? '🔴' : issue.severity === 'warning' ? '🟡' : 'ℹ️' }}
+      {{ issue.message }}
+    </p>
+    }
+  </div>
   }
 
   <div class="editor-wrapper" #editorContainer></div>
