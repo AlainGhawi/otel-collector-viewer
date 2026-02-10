@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as yaml from 'js-yaml';
-import { parseDocument } from 'yaml';
+import { isMap, isSeq, parseDocument } from 'yaml';
 import { OtelConfig, OtelComponent, OtelPipeline } from '../models';
 
 @Injectable({
@@ -44,6 +44,53 @@ export class ConfigSerializerService {
       noRefs: true,
       sortKeys: false,
     });
+  }
+
+  reformatYaml(rawYaml: string): string {
+    const doc = parseDocument(rawYaml);
+    // Force flow style on service.extensions
+    const service = doc.get('service', true);
+    if (isMap(service)) {
+      const ext = service.get('extensions', true);
+      if (isSeq(ext)) ext.flow = true;
+
+      const pipelines = service.get('pipelines', true);
+      if (isMap(pipelines)) {
+        for (const pair of pipelines.items) {
+          const pipeline = pair.value;
+          if (isMap(pipeline)) {
+            for (const field of ['receivers', 'processors', 'exporters']) {
+              const seq = pipeline.get(field, true);
+              if (isSeq(seq)) seq.flow = true;
+            }
+          }
+        }
+      }
+    }
+
+    // Flow-style short scalar arrays elsewhere (e.g. targets)
+    for (const section of ['receivers', 'processors', 'exporters', 'extensions']) {
+      const node = doc.get(section, true);
+      if (isMap(node)) this.flowShortArrays(node);
+    }
+
+    return doc.toString({ indent: 2, lineWidth: 120 });
+  }
+
+  private flowShortArrays(node: unknown): void {
+    if (isMap(node)) {
+      for (const pair of (node as any).items) {
+        if (isSeq(pair.value) && pair.value.items.length <= 5 && pair.value.items.every((i: unknown) => !isMap(i) && !isSeq(i))) {
+          pair.value.flow = true;
+        } else {
+          this.flowShortArrays(pair.value);
+        }
+      }
+    } else if (isSeq(node)) {
+      for (const item of (node as any).items) {
+        this.flowShortArrays(item);
+      }
+    }
   }
 
   private serializeComponents(components: OtelComponent[]): Record<string, unknown> {

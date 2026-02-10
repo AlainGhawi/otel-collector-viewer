@@ -77,6 +77,21 @@ export class YamlPanelComponent implements AfterViewInit, OnDestroy {
     this.editorView.focus();
   }
 
+  reformatYaml(): void {
+    if (this.state.errors().length > 0) return;
+    const reformatted = this.state.reformatYaml();
+    // Update editor content directly
+    if (reformatted && this.editorView) {
+      this.editorView.dispatch({
+        changes: {
+          from: 0,
+          to: this.editorView.state.doc.length,
+          insert: reformatted,
+        },
+      });
+    }
+  }
+
   private initEditor(): void {
     const startState = EditorState.create({
       doc: this.state.rawYaml(),

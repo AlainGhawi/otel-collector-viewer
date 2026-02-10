@@ -1,7 +1,10 @@
 <div class="yaml-panel">
   <div class="panel-header">
     <h3>OTel Collector Yaml Configuration</h3>
-    <div class="panel-actions">      
+    <div class="panel-actions">
+      <button class="btn btn-sm" (click)="reformatYaml()" title="Reformat YAML">
+        ✨ Reformat
+      </button>
       <button class="btn btn-sm" (click)="copyToClipboard()" title="Copy to clipboard">
         📋 Copy
       </button>

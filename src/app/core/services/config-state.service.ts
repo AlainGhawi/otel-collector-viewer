@@ -147,6 +147,12 @@ export class ConfigStateService {
     this._selectedNode.set(null);
   }
 
+  reformatYaml(): string {
+  const reformatted = this.serializer.reformatYaml(this._rawYaml());
+  this._rawYaml.set(reformatted);
+  return reformatted;
+}
+
   private findComponentLine(component: OtelComponent): number | undefined {
     const yaml = this._rawYaml();
     const lines = yaml.split('\n');

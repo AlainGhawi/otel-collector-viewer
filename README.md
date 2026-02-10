@@ -27,7 +27,7 @@ Parse, validate, visualize, and edit your OTel Collector pipelines as node-based
 
 ## Demo
 
-> 🚧 Coming soon — hosted on [GitHub Pages](https://AlainGhawi.github.io/otel-collector-viewer/)
+> 🚧 Hosted on [GitHub Pages](https://alainghawi.github.io/otel-collector-viewer/)
 
 ## Getting Started
 
@@ -117,12 +117,9 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 - [x] Live YAML ↔ graph sync
 - [x] Click-to-inspect node details with YAML line linking
 - [x] Config validation with auto-repair and clickable error links
-- [x] Syntax-highlighted YAML editor (CodeMirror 6)
 - [x] YAML reformatting with comment preservation
 - [x] Delete components (graph + pipeline cleanup)
 - [x] Export to clipboard / download
-- [x] Extensions and connectors visualization
-- [x] Resizable editor panel
 - [ ] Add new components from a palette/menu
 - [ ] Connect/disconnect pipeline edges visually
 - [ ] Right-click context menu on nodes and edges
