@@ -68,45 +68,36 @@ export class ConfigParserService {
 
     // Create edges from pipeline definitions
     for (const pipeline of config.service.pipelines) {
-      // Receiver → Processor edges
       if (pipeline.processors.length > 0) {
+        // Every receiver → every processor
         for (const receiverId of pipeline.receivers) {
-          const edgeId = `${pipeline.id}:receiver/${receiverId}->processor/${pipeline.processors[0]}`;
-          edges.push({
-            id: edgeId,
-            source: `receiver/${receiverId}`,
-            target: `processor/${pipeline.processors[0]}`,
-            pipelineId: pipeline.id,
-            signal: pipeline.signal,
-          });
+          for (const processorId of pipeline.processors) {
+            const edgeId = `${pipeline.id}:receiver/${receiverId}->processor/${processorId}`;
+            edges.push({
+              id: edgeId,
+              source: `receiver/${receiverId}`,
+              target: `processor/${processorId}`,
+              pipelineId: pipeline.id,
+              signal: pipeline.signal,
+            });
+          }
         }
 
-        // Processor → Processor chain edges
-        for (let i = 0; i < pipeline.processors.length - 1; i++) {
-          const edgeId = `${pipeline.id}:processor/${pipeline.processors[i]}->processor/${pipeline.processors[i + 1]}`;
-          edges.push({
-            id: edgeId,
-            source: `processor/${pipeline.processors[i]}`,
-            target: `processor/${pipeline.processors[i + 1]}`,
-            pipelineId: pipeline.id,
-            signal: pipeline.signal,
-          });
-        }
-
-        // Last Processor → Exporter edges
-        const lastProcessor = pipeline.processors[pipeline.processors.length - 1];
-        for (const exporterId of pipeline.exporters) {
-          const edgeId = `${pipeline.id}:processor/${lastProcessor}->exporter/${exporterId}`;
-          edges.push({
-            id: edgeId,
-            source: `processor/${lastProcessor}`,
-            target: `exporter/${exporterId}`,
-            pipelineId: pipeline.id,
-            signal: pipeline.signal,
-          });
+        // Every processor → every exporter
+        for (const processorId of pipeline.processors) {
+          for (const exporterId of pipeline.exporters) {
+            const edgeId = `${pipeline.id}:processor/${processorId}->exporter/${exporterId}`;
+            edges.push({
+              id: edgeId,
+              source: `processor/${processorId}`,
+              target: `exporter/${exporterId}`,
+              pipelineId: pipeline.id,
+              signal: pipeline.signal,
+            });
+          }
         }
       } else {
-        // Direct Receiver → Exporter edges (no processors)
+        // No processors: every receiver → every exporter
         for (const receiverId of pipeline.receivers) {
           for (const exporterId of pipeline.exporters) {
             const edgeId = `${pipeline.id}:receiver/${receiverId}->exporter/${exporterId}`;

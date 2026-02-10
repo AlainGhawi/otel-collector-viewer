@@ -25,6 +25,17 @@ const ROW_GAP = 80;       // vertical space between nodes in the same column
 const PADDING_X = 80;
 const PADDING_Y = 80;
 
+const PIPELINE_COLORS = [
+  '#f472b6', // pink
+  '#38bdf8', // cyan
+  '#4ade80', // green
+  '#fb923c', // orange
+  '#a78bfa', // purple
+  '#facc15', // yellow
+  '#f87171', // red
+  '#2dd4bf', // teal
+];
+
 const COLUMN_ORDER: ComponentType[] = ['extension', 'receiver', 'processor', 'exporter', 'connector'];
 
 interface PositionedNode extends GraphNode {
@@ -50,6 +61,7 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
   private currentNodes: PositionedNode[] = [];
   private currentEdges: GraphEdge[] = [];
   private edgeGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private pipelineColorMap = new Map<string, string>();
 
   constructor() {
     effect(() => {
@@ -89,22 +101,6 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
     this.rootGroup = this.svg.append('g').attr('class', 'root');
 
     // This way traces edges get pink arrows, metrics get cyan, logs get green.
-    const defs = this.svg.append('defs');
-    const signals = ['traces', 'metrics', 'logs'] as const;
-
-    for (const signal of signals) {
-      defs.append('marker')
-        .attr('id', `arrow-${signal}`)
-        .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 10)
-        .attr('refY', 0)
-        .attr('orient', 'auto')
-        .attr('markerWidth', 8)
-        .attr('markerHeight', 8)
-        .append('path')
-        .attr('d', 'M 0,-4 L 10,0 L 0,4')
-        .attr('fill', getSignalColor(signal));
-    }
 
     // Keyboard shortcut to delete selected node
     d3.select('body').on('keydown.graph', (event: KeyboardEvent) => {
@@ -143,6 +139,7 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
 
     this.currentNodes = this.layoutNodes(data.nodes);
     this.currentEdges = data.edges;
+    this.buildPipelineColors(data.edges);
 
     const nodeMap = new Map(this.currentNodes.map(n => [n.id, n]));
 
@@ -264,10 +261,10 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
       this.edgeGroup.append('path')
         .attr('d', path)
         .attr('fill', 'none')
-        .attr('stroke', getSignalColor(edge.signal))
+        .attr('stroke', this.pipelineColorMap.get(edge.pipelineId) ?? '#888')
         .attr('stroke-width', 2)
         .attr('stroke-opacity', 0.45)
-        .attr('marker-end', `url(#arrow-${edge.signal})`);
+        .attr('marker-end', `url(#arrow-${edge.pipelineId.replace(/[^a-zA-Z0-9]/g, '-')})`);
     }
   }
 
@@ -432,5 +429,36 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
       .attr('fill', '#ffffff20')
       .attr('font-size', '14px')
       .text('Use "Load Sample" or paste YAML in the panel →');
+  }
+
+  private buildPipelineColors(edges: GraphEdge[]): void {
+    this.pipelineColorMap.clear();
+    const pipelineIds = [...new Set(edges.map(e => e.pipelineId))];
+
+    for (let i = 0; i < pipelineIds.length; i++) {
+      this.pipelineColorMap.set(pipelineIds[i], PIPELINE_COLORS[i % PIPELINE_COLORS.length]);
+    }
+
+    // Create arrow markers per pipeline
+    let defs = this.svg.select<SVGDefsElement>('defs');
+    if (defs.empty()) {
+      defs = this.svg.append('defs');
+    }
+    defs.selectAll('*').remove();
+
+    for (const [pipelineId, color] of this.pipelineColorMap) {
+      const safeId = pipelineId.replace(/[^a-zA-Z0-9]/g, '-');
+      defs.append('marker')
+        .attr('id', `arrow-${safeId}`)
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 10)
+        .attr('refY', 0)
+        .attr('orient', 'auto')
+        .attr('markerWidth', 8)
+        .attr('markerHeight', 8)
+        .append('path')
+        .attr('d', 'M 0,-4 L 10,0 L 0,4')
+        .attr('fill', color);
+    }
   }
 }
