@@ -1,0 +1,32 @@
+<header class="toolbar">
+    <div class="toolbar-left">
+        <div class="logo">
+            <span class="logo-icon">◈</span>
+            <span class="logo-text">OTel Collector Viewer</span>
+        </div>
+    </div>
+
+    <div class="toolbar-center">
+        <button class="btn" (click)="loadSampleConfig()">
+            📄 Load Sample
+        </button>
+        <button class="btn" (click)="importFile()">
+            📂 Import YAML
+        </button>
+        <button class="btn btn-primary" (click)="exportFile()" [disabled]="!state.hasConfig()">
+            💾 Export YAML
+        </button>
+        <button class="btn btn-danger" (click)="reset()" [disabled]="!state.hasConfig()">
+            🗑️ Clear
+        </button>
+    </div>
+
+    <div class="toolbar-right">
+        @if (state.hasUnsavedChanges()) {
+        <span class="unsaved-badge">● Unsaved changes</span>
+        }
+    </div>
+
+    <!-- Hidden file input -->
+    <input type="file" #fileInput accept=".yaml,.yml" (change)="onFileSelected($event)" style="display: none" />
+</header>

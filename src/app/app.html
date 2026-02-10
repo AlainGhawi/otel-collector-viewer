@@ -1,0 +1,19 @@
+<div class="app-layout">
+    <app-toolbar />
+
+    <div class="app-content">
+        <div class="graph-area">
+            <app-graph-viewer />
+            <app-node-detail (goToLine)="onGoToLine($event)" />
+        </div>
+
+        <!-- This div is to resize the panels -->
+        <div class="resize-handle" (mousedown)="onResizeStart($event)">
+            <div class="resize-grip"></div>
+        </div>
+
+        <div class="yaml-area" [style.width.%]="yamlPanelWidthPercent">
+            <app-yaml-panel #yamlPanel />
+        </div>
+    </div>
+</div>

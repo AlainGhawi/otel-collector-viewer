@@ -1,0 +1,39 @@
+@if (state.selectedNode(); as selected) {
+<div class="node-detail-panel">
+  <div class="panel-header" [style.border-left-color]="getColor()">
+    <div class="header-info">
+      <span class="component-type" [style.color]="getColor()">
+        {{ selected.component.componentType.toUpperCase() }}
+      </span>
+      <h3 class="component-name">{{ selected.component.id }}</h3>
+    </div>
+    <div class="header-actions">
+      <button class="delete-btn" (click)="onDelete()" title="Delete component">🗑️</button>
+      <button class="close-btn" (click)="onClose()" title="Close">✕</button>
+    </div>
+  </div>
+
+  @if (selected.component.name) {
+  <div class="detail-row">
+    <span class="detail-label">Base type</span>
+    <span class="detail-value">{{ selected.component.type }}</span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Instance</span>
+    <span class="detail-value">{{ selected.component.name }}</span>
+  </div>
+  }
+
+  <div class="config-section">
+    <div class="config-header">
+      <span class="detail-label">Configuration</span>
+      @if (selected.yamlLine) {
+      <button class="goto-btn" (click)="onGoToYaml()">
+        📄 Go to YAML (line {{ selected.yamlLine }})
+      </button>
+      }
+    </div>
+    <pre class="config-block" [style.border-color]="getColor()">{{ formatConfig() }}</pre>
+  </div>
+</div>
+}
