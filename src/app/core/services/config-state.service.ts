@@ -1,5 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent } from '../models';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent, YamlErrorMark } from '../models';
 import { ConfigParserService } from './config-parser.service';
 import { ConfigSerializerService } from './config-serializer.service';
 import { ConfigValidatorService } from './config-validator.service';
@@ -15,6 +15,9 @@ export class ConfigStateService {
   private readonly _validationIssues = signal<ValidationIssue[]>([]);
   private readonly _selectedNode = signal<NodeSelection | null>(null);
 
+  private readonly parser = inject(ConfigParserService);
+  private readonly serializer = inject(ConfigSerializerService);
+  private readonly validator = inject(ConfigValidatorService);
   /** Current parsed config */
   readonly config = this._config.asReadonly();
 
@@ -48,12 +51,6 @@ export class ConfigStateService {
     );
   });
 
-  constructor(
-    private readonly parser: ConfigParserService,
-    private readonly serializer: ConfigSerializerService,
-    private readonly validator: ConfigValidatorService
-  ) {}
-
   /**
    * Update the config from visual editor changes and regenerate YAML.
    */
@@ -64,9 +61,9 @@ export class ConfigStateService {
     this._errors.set([]);
   }
 
-    /**
-   * Load a YAML string, parse it, and update the state.
-   */
+  /**
+ * Load a YAML string, parse it, and update the state.
+ */
   loadYaml(yamlString: string): void {
     try {
       let config = this.parser.parseYaml(yamlString);
@@ -76,7 +73,6 @@ export class ConfigStateService {
       this._errors.set([]);
       this._hasUnsavedChanges.set(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown parsing error';
       this._errors.set([this.extractParseError(error)]);
     }
   }
@@ -95,7 +91,6 @@ export class ConfigStateService {
     } catch (error) {
       // Keep the raw YAML even if it doesn't parse — user is editing
       this._rawYaml.set(yamlString);
-      const message = error instanceof Error ? error.message : 'Unknown parsing error';
       this._errors.set([this.extractParseError(error)]);
     }
   }
@@ -210,7 +205,7 @@ export class ConfigStateService {
 
     return undefined;
   }
-  
+
   /* Check for validation issues and attempt to auto-repair the config if possible. */
   private validateAndRepair(config: OtelConfig): OtelConfig {
     // Validate the ORIGINAL config first — this catches the issues
@@ -225,7 +220,7 @@ export class ConfigStateService {
   /* Extract line number and message from YAML parsing errors, if available. */
   private extractParseError(error: unknown): ParseError {
     if (error instanceof Error) {
-      const yamlError = error as any;
+      const yamlError = error as YamlErrorMark;
       const line = yamlError.mark?.line != null ? yamlError.mark.line + 1 : undefined;
 
       // js-yaml format: "short description (line:col)\n\n  context lines..."

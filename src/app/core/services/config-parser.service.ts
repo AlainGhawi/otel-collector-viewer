@@ -131,7 +131,7 @@ export class ConfigParserService {
         const extNode = nodeMap.get(extNodeId);
         if (extNode) {
           // Tag the node so the graph can style it differently
-          (extNode as any).active = true;
+          extNode.active = true;
         }
       }
     }
