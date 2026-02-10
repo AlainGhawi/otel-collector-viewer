@@ -28,7 +28,6 @@ export interface OtelComponent {
   componentType: ComponentType;
   /** Raw YAML config for this component, preserved for round-trip fidelity */
   config: Record<string, unknown>;
-  active?: boolean;
 }
 
 // ─── Pipeline Models ────────────────────────────────────────────
@@ -85,7 +84,6 @@ export interface OtelConfig {
 export interface GraphNode {
   id: string;
   label: string;
-  active?: boolean;
   componentType: ComponentType;
   component: OtelComponent;
 

@@ -16,6 +16,7 @@ export class ConfigValidatorService {
       ...this.checkUnusedComponents(config),
       ...this.checkEmptyPipelines(config),
       ...this.checkEmptyRequiredFields(config),
+      ...this.checkDanglingExtensionRefs(config),
     ];
   }
 
@@ -27,6 +28,7 @@ export class ConfigValidatorService {
     const receiverIds = new Set(config.receivers.map(r => r.id));
     const processorIds = new Set(config.processors.map(p => p.id));
     const exporterIds = new Set(config.exporters.map(e => e.id));
+    const extensionIds = new Set(config.extensions.map(e => e.id));
 
     const repairedPipelines: OtelPipeline[] = config.service.pipelines.map(pipeline => ({
       ...pipeline,
@@ -39,6 +41,7 @@ export class ConfigValidatorService {
       ...config,
       service: {
         ...config.service,
+        extensions: config.service.extensions?.filter(id => extensionIds.has(id)),
         pipelines: repairedPipelines,
       },
     };
@@ -183,6 +186,27 @@ export class ConfigValidatorService {
         message: 'No pipelines defined in the service section',
         autoFixable: false,
       });
+    }
+
+    return issues;
+  }
+
+  /**
+ * Extension referenced in service.extensions but not defined in extensions section.
+ */
+  private checkDanglingExtensionRefs(config: OtelConfig): ValidationIssue[] {
+    const issues: ValidationIssue[] = [];
+    const extensionIds = new Set(config.extensions.map(e => e.id));
+
+    for (const id of config.service.extensions ?? []) {
+      if (!extensionIds.has(id)) {
+        issues.push({
+          severity: 'error',
+          message: `Service references undefined extension "${id}"`,
+          componentId: id,
+          autoFixable: true,
+        });
+      }
     }
 
     return issues;

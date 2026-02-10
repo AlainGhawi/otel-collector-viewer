@@ -60,11 +60,6 @@ export class YamlPanelComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  reformatYaml(): void {
-    if (this.state.errors().length > 0) return;
-    this.state.reformatYaml();
-  }
-
   copyToClipboard(): void {
     const yamlContent = this.state.exportYaml();
     navigator.clipboard.writeText(yamlContent).catch(console.error);

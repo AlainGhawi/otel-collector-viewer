@@ -407,7 +407,6 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
     const translateY = (containerHeight - contentHeight * scale) / 2;
 
     this.svg.call(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       d3.zoom<SVGSVGElement, unknown>().transform as any,
       d3.zoomIdentity.translate(translateX, translateY).scale(scale)
     );

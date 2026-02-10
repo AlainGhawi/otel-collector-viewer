@@ -46,15 +46,6 @@ export class ConfigSerializerService {
     });
   }
 
-  /**
-   * Reformat YAML while preserving comments.
-   * Uses the 'yaml' package which parses to a CST that retains comments.
-   */
-  reformatYaml(rawYaml: string): string {
-    const doc = parseDocument(rawYaml);
-    return doc.toString({ indent: 2, lineWidth: 120 });
-  }
-
   private serializeComponents(components: OtelComponent[]): Record<string, unknown> {
     const result: Record<string, unknown> = {};
 

@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent, YamlErrorMark } from '../models';
+import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent } from '../models';
 import { ConfigParserService } from './config-parser.service';
 import { ConfigSerializerService } from './config-serializer.service';
 import { ConfigValidatorService } from './config-validator.service';
@@ -100,16 +100,6 @@ export class ConfigStateService {
    */
   exportYaml(): string {
     return this.serializer.serializeToYaml(this._config());
-  }
-
-  /**
-   * Reformat the current YAML string while preserving comments and structure.
-   */
-  reformatYaml(): string {
-    const reformatted = this.serializer.reformatYaml(this._rawYaml());
-    this._rawYaml.set(reformatted);
-    this._selectedNode.set(null);
-    return reformatted;
   }
 
   /**
@@ -220,7 +210,7 @@ export class ConfigStateService {
   /* Extract line number and message from YAML parsing errors, if available. */
   private extractParseError(error: unknown): ParseError {
     if (error instanceof Error) {
-      const yamlError = error as YamlErrorMark;
+      const yamlError = error as any;
       const line = yamlError.mark?.line != null ? yamlError.mark.line + 1 : undefined;
 
       // js-yaml format: "short description (line:col)\n\n  context lines..."
