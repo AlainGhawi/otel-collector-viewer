@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject, effect } from '@angular/core';
 import { ConfigStateService } from '../../core/services/config-state.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { EditorState, StateEffect, Compartment } from '@codemirror/state';
+import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, indentLess, indentMore } from '@codemirror/commands';
 import { yaml } from '@codemirror/lang-yaml';

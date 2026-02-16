@@ -15,7 +15,6 @@ import {
   GraphData,
   ComponentType,
   getComponentColor,
-  getSignalColor,
 } from '../../core/models';
 
 const NODE_WIDTH = 180;
