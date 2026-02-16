@@ -13,18 +13,13 @@ Parse, validate, visualize, and edit your OTel Collector pipelines as node-based
 
 ## Features
 
-- **YAML ↔ Visual round-trip**: Import an OTel Collector config and see it as an interactive graph. Edit the YAML and watch the graph update in real time.
-- **Layered pipeline visualization**: Receivers, processors, exporters, extensions, and connectors rendered as a left-to-right DAG using d3.js, with color-coded nodes and signal-colored edges.
-- **Drag-and-drop nodes**: Rearrange nodes freely — edges follow in real time.
+- **YAML ↔ Viewer round-trip**: Import an OTel Collector config and see it as an interactive graph. Edit the YAML and watch the graph update in real time.
+- **Layered pipeline visualization**: Receivers, processors, exporters, extensions, and connectors rendered as a left-to-right using d3.js, with color-coded nodes and signal-colored edges.
 - **Click-to-inspect**: Click any node to see its full configuration and jump directly to its definition in the YAML editor.
 - **Delete components**: Remove nodes from the graph — automatically cleans all pipeline references.
 - **Syntax-highlighted YAML editor**: CodeMirror 6 with oneDark theme, line numbers, Tab/Shift+Tab indentation, and undo/redo.
 - **Validation & auto-repair**: Detects dangling references, unused components, and empty pipelines. Auto-removes invalid pipeline references. Clickable error links jump to the problem line.
-- **Reformat YAML**: One-click reformatting that preserves comments.
 - **Import/Export**: Load YAML files, export edited configs, copy to clipboard.
-- **Resizable panels**: Drag the divider between graph and editor to customize your layout.
-- **Sample configs**: Load example configurations to explore the tool instantly.
-- **Dark/Light theme toggle**: Switch between dark and light color schemes with a professional toggle slider (🌙 ⟷ ☀️). Your preference is saved automatically.
 - **Shareable config links**: Share configurations via URL — click the Share button to copy a link that encodes your entire config. No file uploads required, completely client-side.
 
 ## Demo
