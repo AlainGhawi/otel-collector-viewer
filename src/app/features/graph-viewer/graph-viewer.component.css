@@ -8,9 +8,9 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #1a1a2e;
+    background-color: var(--color-bg-primary);
     background-image:
-        radial-gradient(circle, #ffffff08 1px, transparent 1px);
+        radial-gradient(circle, var(--color-grid-dots) 1px, transparent 1px);
     background-size: 24px 24px;
 }
 

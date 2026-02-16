@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfigStateService } from '../../core/services/config-state.service';
+import { ThemeService } from '../../core/services/theme.service';
+import { ConfigUrlService, ConfigTooLargeError } from '../../core/services/config-url.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -10,7 +13,10 @@ import { ConfigStateService } from '../../core/services/config-state.service';
 })
 export class ToolbarComponent {
   readonly state = inject(ConfigStateService);
+  readonly themeService = inject(ThemeService);
   private readonly http = inject(HttpClient);
+  private readonly configUrlService = inject(ConfigUrlService);
+  private readonly snackBar = inject(MatSnackBar);
 
   loadSampleConfig(): void {
     this.http
@@ -57,5 +63,24 @@ export class ToolbarComponent {
 
   reset(): void {
     this.state.reset();
+  }
+
+  async shareConfig(): Promise<void> {
+    try {
+      const yaml = this.state.exportYaml();
+      const url = this.configUrlService.generateShareableUrl(yaml);
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+        this.snackBar.open('Link copied to clipboard!', 'Dismiss', { duration: 3000 });
+      } else {
+        prompt('Copy this shareable link:', url);
+      }
+    } catch (error) {
+      const message = error instanceof ConfigTooLargeError
+        ? 'Config too large to share via URL. Use Export instead.'
+        : 'Failed to create shareable link';
+      this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+    }
   }
 }

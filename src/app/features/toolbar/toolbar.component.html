@@ -1,7 +1,7 @@
 <header class="toolbar">
     <div class="toolbar-left">
         <div class="logo">
-            <span class="logo-icon">◈</span>
+            <img src="otel-logo.svg" alt="OpenTelemetry" class="logo-icon" />
             <span class="logo-text">OTel Collector Viewer</span>
         </div>
     </div>
@@ -13,12 +13,34 @@
         <button class="btn" (click)="importFile()">
             📂 Import YAML
         </button>
-        <button class="btn btn-primary" (click)="exportFile()" [disabled]="!state.hasConfig()">
+        <button class="btn" (click)="exportFile()" [disabled]="!state.hasConfig()">
             💾 Export YAML
+        </button>
+        <button
+            class="btn"
+            (click)="shareConfig()"
+            [disabled]="!state.hasConfig()"
+            title="Copy shareable link to clipboard">
+            🔗 Share
         </button>
         <button class="btn btn-danger" (click)="reset()" [disabled]="!state.hasConfig()">
             🗑️ Clear
         </button>
+    </div>
+
+    <div class="toolbar-right">
+        <div class="theme-toggle-container">
+            <span class="theme-icon">🌙</span>
+            <label class="theme-toggle">
+                <input
+                    type="checkbox"
+                    [checked]="themeService.isLight()"
+                    (change)="themeService.toggleTheme()"
+                    [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+                <span class="slider"></span>
+            </label>
+            <span class="theme-icon">☀️</span>
+        </div>
     </div>
 
     <!-- Hidden file input -->

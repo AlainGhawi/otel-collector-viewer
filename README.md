@@ -24,6 +24,8 @@ Parse, validate, visualize, and edit your OTel Collector pipelines as node-based
 - **Import/Export**: Load YAML files, export edited configs, copy to clipboard.
 - **Resizable panels**: Drag the divider between graph and editor to customize your layout.
 - **Sample configs**: Load example configurations to explore the tool instantly.
+- **Dark/Light theme toggle**: Switch between dark and light color schemes with a professional toggle slider (🌙 ⟷ ☀️). Your preference is saved automatically.
+- **Shareable config links**: Share configurations via URL — click the Share button to copy a link that encodes your entire config. No file uploads required, completely client-side.
 
 ## Demo
 
@@ -125,8 +127,8 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 - [ ] Right-click context menu on nodes and edges
 - [ ] Component library (known receivers, processors, exporters)
 - [ ] Pipeline filtering by signal type
-- [ ] Dark/light theme toggle
-- [ ] Shareable config links (URL-encoded)
+- [x] Dark/light theme toggle
+- [x] Shareable config links (URL-encoded)
 
 ## License
 

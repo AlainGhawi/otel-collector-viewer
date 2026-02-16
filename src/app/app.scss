@@ -38,7 +38,7 @@
 
   &:hover,
   &:active {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--color-border);
   }
 }
 
@@ -46,11 +46,11 @@
   width: 2px;
   height: 40px;
   border-radius: 1px;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-border);
   transition: background 0.15s;
 
   .resize-handle:hover &,
   .resize-handle:active & {
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--color-text-muted);
   }
 }

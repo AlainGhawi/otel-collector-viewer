@@ -156,26 +156,28 @@ export function parsePipelineId(id: string): { signal: SignalType; name?: string
 
 /**
  * Get a display-friendly color for each component type.
+ * Returns CSS variable references for theme-aware colors.
  */
 export function getComponentColor(type: ComponentType): string {
   const colors: Record<ComponentType, string> = {
-    receiver: '#4CAF50',   // Green
-    processor: '#FF9800',  // Orange
-    exporter: '#2196F3',   // Blue
-    connector: '#9C27B0',  // Purple
-    extension: '#78909C',  // Gray
+    receiver: 'var(--color-receiver)',
+    processor: 'var(--color-processor)',
+    exporter: 'var(--color-exporter)',
+    connector: 'var(--color-connector)',
+    extension: 'var(--color-extension)',
   };
   return colors[type];
 }
 
 /**
  * Get a display-friendly color for each signal type.
+ * Returns CSS variable references for theme-aware colors.
  */
 export function getSignalColor(signal: SignalType): string {
   const colors: Record<SignalType, string> = {
-    traces: '#E91E63',   // Pink
-    metrics: '#00BCD4',  // Cyan
-    logs: '#8BC34A',     // Light Green
+    traces: 'var(--color-traces)',
+    metrics: 'var(--color-metrics)',
+    logs: 'var(--color-logs)',
   };
   return colors[signal];
 }

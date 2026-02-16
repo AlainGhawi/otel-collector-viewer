@@ -1,3 +1,17 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
 *,
 *::before,
 *::after {
@@ -6,13 +20,83 @@
   box-sizing: border-box;
 }
 
+// CSS Variables - Theme System
+:root {
+  // Semantic color tokens
+  --color-bg-primary: var(--theme-bg-primary);
+  --color-bg-secondary: var(--theme-bg-secondary);
+  --color-bg-tertiary: var(--theme-bg-tertiary);
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
+  --color-border: var(--theme-border);
+  --color-accent: var(--theme-accent);
+  --color-surface: var(--theme-surface);
+  --color-scrollbar: var(--theme-scrollbar);
+  --color-scrollbar-hover: var(--theme-scrollbar-hover);
+  --color-selection: var(--theme-selection);
+  --color-selection-text: var(--theme-selection-text);
+  --color-grid-dots: var(--theme-grid-dots);
+  --color-empty-state: var(--theme-empty-state);
+
+  // Component colors (theme-independent)
+  --color-receiver: #4CAF50;
+  --color-processor: #FF9800;
+  --color-exporter: #2196F3;
+  --color-connector: #9C27B0;
+  --color-extension: #78909C;
+
+  // Signal colors (theme-independent)
+  --color-traces: #E91E63;
+  --color-metrics: #00BCD4;
+  --color-logs: #8BC34A;
+}
+
+// Dark Theme (default)
+[data-theme='dark'] {
+  --theme-bg-primary: #1a1a2e;
+  --theme-bg-secondary: #16213e;
+  --theme-bg-tertiary: #0f3460;
+  --theme-text-primary: #e0e0e0;
+  --theme-text-secondary: #ffffffee;
+  --theme-text-muted: rgba(255, 255, 255, 0.3);
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-accent: #e94560;
+  --theme-surface: rgba(15, 25, 50, 0.95);
+  --theme-scrollbar: rgba(255, 255, 255, 0.2);
+  --theme-scrollbar-hover: rgba(255, 255, 255, 0.35);
+  --theme-selection: rgba(233, 69, 96, 0.25);
+  --theme-selection-text: #ffffff;
+  --theme-grid-dots: rgba(255, 255, 255, 0.08);
+  --theme-empty-state: rgba(255, 255, 255, 0.2);
+}
+
+// Light Theme
+[data-theme='light'] {
+  --theme-bg-primary: #f5f7fa;
+  --theme-bg-secondary: #ffffff;
+  --theme-bg-tertiary: #e8ecf1;
+  --theme-text-primary: #2c3e50;
+  --theme-text-secondary: #34495e;
+  --theme-text-muted: rgba(0, 0, 0, 0.4);
+  --theme-border: rgba(0, 0, 0, 0.12);
+  --theme-accent: #e94560;
+  --theme-surface: rgba(255, 255, 255, 0.95);
+  --theme-scrollbar: rgba(0, 0, 0, 0.2);
+  --theme-scrollbar-hover: rgba(0, 0, 0, 0.35);
+  --theme-selection: rgba(233, 69, 96, 0.25);
+  --theme-selection-text: #ffffff;
+  --theme-grid-dots: rgba(0, 0, 0, 0.06);
+  --theme-empty-state: rgba(0, 0, 0, 0.3);
+}
+
 html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #1a1a2e;
-  color: #e0e0e0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -27,16 +111,16 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #ffffff20;
+  background-color: var(--color-scrollbar);
   border-radius: 4px;
 
   &:hover {
-    background-color: #ffffff35;
+    background-color: var(--color-scrollbar-hover);
   }
 }
 
 // Selection
 ::selection {
-  background-color: #e9456040;
-  color: #ffffff;
+  background-color: var(--color-selection);
+  color: var(--color-selection-text);
 }

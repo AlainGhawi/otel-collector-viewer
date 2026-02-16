@@ -318,7 +318,7 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
       .attr('y', 38)
       .attr('font-size', '13px')
       .attr('font-weight', '500')
-      .attr('fill', '#ffffffe0')
+      .attr('fill', 'var(--color-text-secondary)')
       .text(d => d.label);
 
     // Hover effects
@@ -418,7 +418,7 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
 
     g.append('text')
       .attr('text-anchor', 'middle')
-      .attr('fill', '#ffffff30')
+      .attr('fill', 'var(--color-text-muted)')
       .attr('font-size', '20px')
       .attr('font-weight', '500')
       .text('Load an OTel Collector config to visualize');
@@ -426,7 +426,7 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
     g.append('text')
       .attr('y', 30)
       .attr('text-anchor', 'middle')
-      .attr('fill', '#ffffff20')
+      .attr('fill', 'var(--color-empty-state)')
       .attr('font-size', '14px')
       .text('Use "Load Sample" or paste YAML in the panel →');
   }

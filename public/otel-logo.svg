@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- OpenTelemetry-inspired logo with interconnected nodes -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5A800;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#425CC7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer circle -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="url(#grad1)" stroke-width="3" opacity="0.3"/>
+
+  <!-- Inner nodes (representing telemetry data points) -->
+  <circle cx="30" cy="30" r="8" fill="#F5A800"/>
+  <circle cx="70" cy="30" r="8" fill="#425CC7"/>
+  <circle cx="50" cy="60" r="8" fill="#F5A800"/>
+  <circle cx="30" cy="70" r="6" fill="#425CC7"/>
+  <circle cx="70" cy="70" r="6" fill="#F5A800"/>
+
+  <!-- Connecting lines (representing data flow) -->
+  <line x1="30" y1="30" x2="70" y2="30" stroke="url(#grad1)" stroke-width="2" opacity="0.6"/>
+  <line x1="30" y1="30" x2="50" y2="60" stroke="url(#grad1)" stroke-width="2" opacity="0.6"/>
+  <line x1="70" y1="30" x2="50" y2="60" stroke="url(#grad1)" stroke-width="2" opacity="0.6"/>
+  <line x1="30" y1="70" x2="50" y2="60" stroke="url(#grad1)" stroke-width="2" opacity="0.6"/>
+  <line x1="70" y1="70" x2="50" y2="60" stroke="url(#grad1)" stroke-width="2" opacity="0.6"/>
+
+  <!-- Center highlight -->
+  <circle cx="50" cy="50" r="12" fill="none" stroke="#F5A800" stroke-width="2" opacity="0.5"/>
+</svg>
