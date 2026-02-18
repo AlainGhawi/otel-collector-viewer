@@ -124,3 +124,18 @@ html, body {
   background-color: var(--color-selection);
   color: var(--color-selection-text);
 }
+
+// Material Dialog overrides — the CDK overlay renders outside the app,
+// so the dialog surface needs explicit theme-aware colors.
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: var(--color-bg-secondary) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.mat-mdc-dialog-title {
+  color: var(--color-text-secondary) !important;
+}
+
+.mat-mdc-dialog-actions {
+  border-top: 1px solid var(--color-border);
+}

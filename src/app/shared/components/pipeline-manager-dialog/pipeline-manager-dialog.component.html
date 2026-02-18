@@ -1,0 +1,125 @@
+<h2 mat-dialog-title>Manage Pipelines</h2>
+
+<mat-dialog-content class="dialog-content">
+  @if (state.config().service.pipelines.length === 0) {
+    <div class="empty-state">No pipelines defined. Create one to connect your components.</div>
+  }
+
+  @for (pipeline of state.config().service.pipelines; track pipeline.id) {
+    <div class="pipeline-card">
+      <div class="pipeline-card-header">
+        <span class="pipeline-id" [style.color]="getSignalColor(pipeline.signal)">{{ pipeline.id }}</span>
+        <button class="delete-pipeline-btn" (click)="deletePipeline(pipeline)" title="Delete pipeline">
+          🗑️
+        </button>
+      </div>
+
+      <!-- Receivers -->
+      <div class="pipeline-role-row">
+        <span class="role-label">Receivers</span>
+        <div class="role-chips">
+          @for (id of pipeline.receivers; track id) {
+            <span class="component-chip">
+              {{ id }}
+              <button class="chip-remove" (click)="removeFromPipeline(pipeline.id, id, 'receivers')">×</button>
+            </span>
+          }
+          <div class="add-dropdown-wrapper">
+            <button class="add-chip-btn" (click)="toggleAddDropdown(pipeline.id, 'receivers')">+ Add</button>
+            @if (isDropdownOpen(pipeline.id, 'receivers')) {
+              <div class="add-dropdown">
+                @for (id of getAvailableComponents(pipeline, 'receivers'); track id) {
+                  <button class="dropdown-item" (click)="addToPipeline(pipeline.id, id, 'receivers')">{{ id }}</button>
+                } @empty {
+                  <div class="dropdown-empty">No receivers available</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Processors -->
+      <div class="pipeline-role-row">
+        <span class="role-label">Processors</span>
+        <div class="role-chips">
+          @for (id of pipeline.processors; track id) {
+            <span class="component-chip">
+              {{ id }}
+              <button class="chip-remove" (click)="removeFromPipeline(pipeline.id, id, 'processors')">×</button>
+            </span>
+          }
+          <div class="add-dropdown-wrapper">
+            <button class="add-chip-btn" (click)="toggleAddDropdown(pipeline.id, 'processors')">+ Add</button>
+            @if (isDropdownOpen(pipeline.id, 'processors')) {
+              <div class="add-dropdown">
+                @for (id of getAvailableComponents(pipeline, 'processors'); track id) {
+                  <button class="dropdown-item" (click)="addToPipeline(pipeline.id, id, 'processors')">{{ id }}</button>
+                } @empty {
+                  <div class="dropdown-empty">No processors available</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Exporters -->
+      <div class="pipeline-role-row">
+        <span class="role-label">Exporters</span>
+        <div class="role-chips">
+          @for (id of pipeline.exporters; track id) {
+            <span class="component-chip">
+              {{ id }}
+              <button class="chip-remove" (click)="removeFromPipeline(pipeline.id, id, 'exporters')">×</button>
+            </span>
+          }
+          <div class="add-dropdown-wrapper">
+            <button class="add-chip-btn" (click)="toggleAddDropdown(pipeline.id, 'exporters')">+ Add</button>
+            @if (isDropdownOpen(pipeline.id, 'exporters')) {
+              <div class="add-dropdown">
+                @for (id of getAvailableComponents(pipeline, 'exporters'); track id) {
+                  <button class="dropdown-item" (click)="addToPipeline(pipeline.id, id, 'exporters')">{{ id }}</button>
+                } @empty {
+                  <div class="dropdown-empty">No exporters available</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- New pipeline -->
+  @if (!showNewPipeline()) {
+    <button class="new-pipeline-btn" (click)="toggleNewPipeline()">+ New Pipeline</button>
+  } @else {
+    <div class="new-pipeline-card">
+      <div class="new-pipeline-form">
+        <select
+          class="new-pipeline-select"
+          [value]="newPipelineSignal()"
+          (change)="onNewSignalChange($event)"
+        >
+          @for (s of signalTypes; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+        <input
+          type="text"
+          class="new-pipeline-input"
+          placeholder="Name (optional)"
+          [value]="newPipelineName()"
+          (input)="onNewNameInput($event)"
+        />
+        <button class="create-btn" (click)="createPipeline()">Create</button>
+        <button class="cancel-btn" (click)="toggleNewPipeline()">Cancel</button>
+      </div>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onClose()">Close</button>
+</mat-dialog-actions>

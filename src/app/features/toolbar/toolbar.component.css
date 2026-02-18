@@ -67,6 +67,20 @@
       }
     }
 
+    .btn-add {
+      &:hover:not(:disabled) {
+        background: rgba(76, 175, 80, 0.15);
+        border-color: rgba(76, 175, 80, 0.4);
+      }
+    }
+
+    .btn-pipeline {
+      &:hover:not(:disabled) {
+        background: rgba(0, 188, 212, 0.15);
+        border-color: rgba(0, 188, 212, 0.4);
+      }
+    }
+
     .btn-danger {
       &:hover:not(:disabled) {
         background: rgba(255, 82, 82, 0.2);

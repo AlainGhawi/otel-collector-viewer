@@ -1,6 +1,8 @@
 import { Component, inject, output } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ConfigStateService } from '../../core/services/config-state.service';
 import { getComponentColor } from '../../core/models';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-node-detail',
@@ -11,6 +13,7 @@ import { getComponentColor } from '../../core/models';
 export class NodeDetailComponent {
   readonly state = inject(ConfigStateService);
   readonly goToLine = output<number>();
+  private readonly dialog = inject(MatDialog);
 
   getColor(): string {
     const node = this.state.selectedNode();
@@ -44,9 +47,15 @@ export class NodeDetailComponent {
     const node = this.state.selectedNode();
     if (!node) return;
 
-    const confirmed = confirm(`Delete "${node.component.id}" from the configuration?`);
-    if (!confirmed) return;
-
-    this.state.removeComponent(node.component);
+    this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Delete Component',
+        message: `Delete "${node.component.id}" from the configuration?`,
+      } satisfies ConfirmDialogData,
+    }).afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.state.removeComponent(node.component);
+      }
+    });
   }
 }

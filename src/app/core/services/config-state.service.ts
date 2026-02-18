@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent } from '../models';
+import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent, OtelPipeline, ComponentType, SignalType, parseComponentId, parsePipelineId, ComponentDefinition } from '../models';
 import { ConfigParserService } from './config-parser.service';
 import { ConfigSerializerService } from './config-serializer.service';
 import { ConfigValidatorService } from './config-validator.service';
@@ -139,12 +139,113 @@ export class ConfigStateService {
       },
     };
 
-    // Validate after removal
-    const issues = this.validator.validate(updatedConfig);
-    this._validationIssues.set(issues);
-    this._config.set(updatedConfig);
-    this._rawYaml.set(this.serializer.serializeToYaml(updatedConfig));
+    this.applyConfigUpdate(updatedConfig);
     this._selectedNode.set(null);
+  }
+
+  addComponent(definition: ComponentDefinition, instanceName?: string): string {
+    const config = this._config();
+
+    const baseId = instanceName ? `${definition.type}/${instanceName}` : definition.type;
+    const finalId = this.resolveUniqueId(baseId, definition.componentType, config);
+    const { type, name } = parseComponentId(finalId);
+
+    const newComponent: OtelComponent = {
+      id: finalId,
+      type,
+      name,
+      componentType: definition.componentType,
+      config: structuredClone(definition.defaultConfig),
+    };
+
+    const sectionKey = this.getSectionKey(definition.componentType);
+    const updatedConfig: OtelConfig = {
+      ...config,
+      [sectionKey]: [...config[sectionKey], newComponent],
+      service: {
+        ...config.service,
+        extensions:
+          definition.componentType === 'extension'
+            ? [...(config.service.extensions ?? []), finalId]
+            : config.service.extensions,
+      },
+    };
+
+    this.applyConfigUpdate(updatedConfig);
+
+    return finalId;
+  }
+
+  addPipeline(pipelineSignal: SignalType, name?: string): string {
+    const config = this._config();
+    const id = name ? `${pipelineSignal}/${name}` : pipelineSignal;
+    const { signal } = parsePipelineId(id);
+
+    const newPipeline: OtelPipeline = {
+      id,
+      signal,
+      name,
+      receivers: [],
+      processors: [],
+      exporters: [],
+    };
+
+    const updatedConfig: OtelConfig = {
+      ...config,
+      service: {
+        ...config.service,
+        pipelines: [...config.service.pipelines, newPipeline],
+      },
+    };
+
+    this.applyConfigUpdate(updatedConfig);
+    return id;
+  }
+
+  removePipeline(pipelineId: string): void {
+    const config = this._config();
+    const updatedConfig: OtelConfig = {
+      ...config,
+      service: {
+        ...config.service,
+        pipelines: config.service.pipelines.filter(p => p.id !== pipelineId),
+      },
+    };
+
+    this.applyConfigUpdate(updatedConfig);
+  }
+
+  addComponentToPipeline(pipelineId: string, componentId: string, role: 'receivers' | 'processors' | 'exporters'): void {
+    const config = this._config();
+    const updatedConfig: OtelConfig = {
+      ...config,
+      service: {
+        ...config.service,
+        pipelines: config.service.pipelines.map(p => {
+          if (p.id !== pipelineId) return p;
+          if (p[role].includes(componentId)) return p; // no-op if already present
+          return { ...p, [role]: [...p[role], componentId] };
+        }),
+      },
+    };
+
+    this.applyConfigUpdate(updatedConfig);
+  }
+
+  removeComponentFromPipeline(pipelineId: string, componentId: string, role: 'receivers' | 'processors' | 'exporters'): void {
+    const config = this._config();
+    const updatedConfig: OtelConfig = {
+      ...config,
+      service: {
+        ...config.service,
+        pipelines: config.service.pipelines.map(p => {
+          if (p.id !== pipelineId) return p;
+          return { ...p, [role]: p[role].filter(id => id !== componentId) };
+        }),
+      },
+    };
+
+    this.applyConfigUpdate(updatedConfig);
   }
 
   reformatYaml(): string {
@@ -191,6 +292,40 @@ export class ConfigStateService {
     }
 
     return undefined;
+  }
+
+  private resolveUniqueId(baseId: string, componentType: ComponentType, config: OtelConfig): string {
+    const sectionKey = this.getSectionKey(componentType);
+    const existingIds = new Set(config[sectionKey].map((c: OtelComponent) => c.id));
+
+    if (!existingIds.has(baseId)) {
+      return baseId;
+    }
+
+    const { type } = parseComponentId(baseId);
+    let counter = 2;
+    while (existingIds.has(`${type}/${counter}`)) {
+      counter++;
+    }
+    return `${type}/${counter}`;
+  }
+
+  private getSectionKey(componentType: ComponentType): 'receivers' | 'processors' | 'exporters' | 'connectors' | 'extensions' {
+    const map: Record<ComponentType, 'receivers' | 'processors' | 'exporters' | 'connectors' | 'extensions'> = {
+      receiver: 'receivers',
+      processor: 'processors',
+      exporter: 'exporters',
+      connector: 'connectors',
+      extension: 'extensions',
+    };
+    return map[componentType];
+  }
+
+  private applyConfigUpdate(config: OtelConfig): void {
+    const issues = this.validator.validate(config);
+    this._validationIssues.set(issues);
+    this._config.set(config);
+    this._rawYaml.set(this.serializer.serializeToYaml(config));
   }
 
   /* Check for validation issues and attempt to auto-repair the config if possible. */

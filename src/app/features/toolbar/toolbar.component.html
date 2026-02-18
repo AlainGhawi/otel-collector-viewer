@@ -7,6 +7,12 @@
     </div>
 
     <div class="toolbar-center">
+        <button class="btn btn-add" (click)="openAddComponent()">
+            ➕ Add Component
+        </button>
+        <button class="btn btn-pipeline" (click)="openPipelineManager()" [disabled]="!state.hasConfig()">
+            🔗 Pipelines
+        </button>
         <button class="btn" (click)="loadSampleConfig()">
             📄 Load Sample
         </button>

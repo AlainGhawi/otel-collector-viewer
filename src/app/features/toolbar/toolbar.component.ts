@@ -1,9 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { ConfigStateService } from '../../core/services/config-state.service';
+import { ComponentType } from '../../core/models';
 import { ThemeService } from '../../core/services/theme.service';
 import { ConfigUrlService, ConfigTooLargeError } from '../../core/services/config-url.service';
+import { AddComponentDialogComponent, AddComponentDialogResult } from '../../shared/components/add-component-dialog/add-component-dialog.component';
+import { PipelineManagerDialogComponent } from '../../shared/components/pipeline-manager-dialog/pipeline-manager-dialog.component';
 
 @Component({
   selector: 'app-toolbar',
@@ -17,6 +21,59 @@ export class ToolbarComponent {
   private readonly http = inject(HttpClient);
   private readonly configUrlService = inject(ConfigUrlService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+
+  openAddComponent(): void {
+    this.dialog
+      .open(AddComponentDialogComponent, {
+        width: '600px',
+        maxHeight: '80vh',
+      })
+      .afterClosed()
+      .subscribe((result: AddComponentDialogResult | null) => {
+        if (result) {
+          const addedId = this.state.addComponent(result.definition, result.instanceName);
+          const role = this.getComponentRole(result.definition.componentType);
+
+          // Create new pipeline if requested
+          if (result.newPipeline) {
+            const newPipelineId = this.state.addPipeline(result.newPipeline.signal, result.newPipeline.name);
+            if (role) {
+              this.state.addComponentToPipeline(newPipelineId, addedId, role);
+            }
+          }
+
+          // Add to selected existing pipelines
+          if (role) {
+            for (const pipelineId of result.pipelineIds) {
+              this.state.addComponentToPipeline(pipelineId, addedId, role);
+            }
+          }
+
+          this.snackBar.open(
+            `Added ${result.definition.componentType} "${addedId}"`,
+            'Dismiss',
+            { duration: 3000 },
+          );
+        }
+      });
+  }
+
+  openPipelineManager(): void {
+    this.dialog.open(PipelineManagerDialogComponent, {
+      width: '650px',
+      maxHeight: '80vh',
+    });
+  }
+
+  private getComponentRole(componentType: ComponentType): 'receivers' | 'processors' | 'exporters' | null {
+    const map: Partial<Record<ComponentType, 'receivers' | 'processors' | 'exporters'>> = {
+      receiver: 'receivers',
+      processor: 'processors',
+      exporter: 'exporters',
+    };
+    return map[componentType] ?? null;
+  }
 
   loadSampleConfig(): void {
     this.http

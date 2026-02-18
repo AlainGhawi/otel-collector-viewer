@@ -1,0 +1,151 @@
+<h2 mat-dialog-title>Add Component</h2>
+
+<mat-dialog-content class="dialog-content">
+  <!-- Search bar -->
+  <div class="search-bar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search components..."
+      [value]="searchQuery()"
+      (input)="onSearchInput($event)"
+    />
+  </div>
+
+  <!-- Type filter tabs -->
+  <div class="tab-bar">
+    @for (tab of tabs; track tab.value) {
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === tab.value"
+        (click)="selectTab(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Component list -->
+  <div class="component-list">
+    @for (comp of filteredComponents(); track comp.type + comp.componentType) {
+      <button
+        class="component-item"
+        [class.selected]="selectedDefinition()?.type === comp.type && selectedDefinition()?.componentType === comp.componentType"
+        (click)="selectComponent(comp)"
+      >
+        <div class="component-color-bar" [style.background-color]="getColor(comp.componentType)"></div>
+        <div class="component-info">
+          <div class="component-header">
+            <span class="component-name">{{ comp.displayName }}</span>
+            <span class="component-type-badge" [style.color]="getColor(comp.componentType)">
+              {{ comp.componentType }}
+            </span>
+          </div>
+          <p class="component-description">{{ comp.description }}</p>
+          @if (comp.supportedSignals.length > 0) {
+            <div class="signal-tags">
+              @for (signal of comp.supportedSignals; track signal) {
+                <span class="signal-tag" [attr.data-signal]="signal">{{ signal }}</span>
+              }
+            </div>
+          }
+        </div>
+      </button>
+    } @empty {
+      <div class="empty-state">No components match your search.</div>
+    }
+  </div>
+
+  <!-- Instance name (shown when a component is selected) -->
+  @if (selectedDefinition(); as selected) {
+    <div class="instance-section">
+      <div class="instance-header">
+        Adding: <strong>{{ selected.displayName }}</strong> ({{ selected.componentType }})
+      </div>
+      <div class="instance-name-row">
+        <label class="instance-label" for="instanceName">Instance name (optional)</label>
+        <input
+          id="instanceName"
+          type="text"
+          class="instance-input"
+          placeholder="e.g., grpc, backend, prod"
+          [value]="instanceName()"
+          (input)="onInstanceNameInput($event)"
+        />
+        <span class="instance-preview">
+          ID: <code>{{ instanceName() ? selected.type + '/' + instanceName() : selected.type }}</code>
+        </span>
+      </div>
+    </div>
+
+    <!-- Pipeline assignment (not for extensions) -->
+    @if (selected.componentType !== 'extension') {
+      <div class="pipeline-section">
+        <div class="pipeline-section-header">Add to pipelines</div>
+
+        @if (availablePipelines().length > 0) {
+          <div class="pipeline-checkboxes">
+            @for (pipeline of availablePipelines(); track pipeline.id) {
+              <label class="pipeline-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="isPipelineSelected(pipeline.id)"
+                  (change)="togglePipeline(pipeline.id)"
+                />
+                <span class="pipeline-label">
+                  <span class="pipeline-signal" [style.color]="getSignalColor(pipeline.signal)">{{ pipeline.id }}</span>
+                </span>
+              </label>
+            }
+          </div>
+        } @else {
+          <div class="pipeline-empty">No pipelines yet.</div>
+        }
+
+        <div class="new-pipeline-toggle">
+          <label class="pipeline-checkbox">
+            <input
+              type="checkbox"
+              [checked]="showNewPipeline()"
+              (change)="toggleNewPipeline()"
+            />
+            <span class="pipeline-label">Create new pipeline</span>
+          </label>
+        </div>
+
+        @if (showNewPipeline()) {
+          <div class="new-pipeline-form">
+            <select
+              class="new-pipeline-select"
+              [value]="newPipelineSignal()"
+              (change)="onNewPipelineSignalChange($event)"
+            >
+              @for (s of signalTypes; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+            <input
+              type="text"
+              class="instance-input"
+              placeholder="Pipeline name (optional)"
+              [value]="newPipelineName()"
+              (input)="onNewPipelineNameInput($event)"
+            />
+          </div>
+        }
+      </div>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!selectedDefinition()"
+    (click)="onAdd()"
+  >
+    Add Component
+  </button>
+</mat-dialog-actions>

@@ -117,10 +117,9 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 - [x] YAML reformatting with comment preservation
 - [x] Delete components (graph + pipeline cleanup)
 - [x] Export to clipboard / download
-- [ ] Add new components from a palette/menu
+- [x] Add new components from a palette/menu
+- [x] Component library (known receivers, processors, exporters)
 - [ ] Connect/disconnect pipeline edges visually
-- [ ] Right-click context menu on nodes and edges
-- [ ] Component library (known receivers, processors, exporters)
 - [ ] Pipeline filtering by signal type
 - [x] Dark/light theme toggle
 - [x] Shareable config links (URL-encoded)
