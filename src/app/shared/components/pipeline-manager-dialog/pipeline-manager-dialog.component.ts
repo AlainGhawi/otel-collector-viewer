@@ -27,6 +27,14 @@ export class PipelineManagerDialogComponent {
   // Track which pipeline/role has an open "add" dropdown
   readonly activeDropdown = signal<{ pipelineId: string; role: PipelineRole } | null>(null);
 
+  getPipelinesBySignal(signal: SignalType): OtelPipeline[] {
+    return this.state.config().service.pipelines.filter(p => p.signal === signal);
+  }
+
+  hasSignalPipelines(signal: SignalType): boolean {
+    return this.state.config().service.pipelines.some(p => p.signal === signal);
+  }
+
   getSignalColor(signalType: SignalType): string {
     return getSignalColor(signalType);
   }

@@ -13,6 +13,39 @@
   font-size: 14px;
 }
 
+.swimlane {
+  border-left: 3px solid transparent;
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.swimlane-header {
+  display: flex;
+  align-items: center;
+}
+
+.swimlane-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.swimlane-empty {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: 4px 0;
+}
+
+.swimlane-pipelines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .pipeline-card {
   border: 1px solid var(--color-border);
   border-radius: 8px;
