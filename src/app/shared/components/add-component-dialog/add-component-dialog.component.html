@@ -25,39 +25,41 @@
     }
   </div>
 
-  <!-- Component list -->
-  <div class="component-list">
-    @for (comp of filteredComponents(); track comp.type + comp.componentType) {
-      <button
-        class="component-item"
-        [class.selected]="selectedDefinition()?.type === comp.type && selectedDefinition()?.componentType === comp.componentType"
-        (click)="selectComponent(comp)"
-      >
-        <div class="component-color-bar" [style.background-color]="getColor(comp.componentType)"></div>
-        <div class="component-info">
-          <div class="component-header">
-            <span class="component-name">{{ comp.displayName }}</span>
-            <span class="component-type-badge" [style.color]="getColor(comp.componentType)">
-              {{ comp.componentType }}
-            </span>
-          </div>
-          <p class="component-description">{{ comp.description }}</p>
-          @if (comp.supportedSignals.length > 0) {
-            <div class="signal-tags">
-              @for (signal of comp.supportedSignals; track signal) {
-                <span class="signal-tag" [attr.data-signal]="signal">{{ signal }}</span>
-              }
+  <!-- Scrollable area: component list + config sections -->
+  <div class="scrollable-body">
+    <!-- Component list -->
+    <div class="component-list">
+      @for (comp of filteredComponents(); track comp.type + comp.componentType) {
+        <button
+          class="component-item"
+          [class.selected]="selectedDefinition()?.type === comp.type && selectedDefinition()?.componentType === comp.componentType"
+          (click)="selectComponent(comp)"
+        >
+          <div class="component-color-bar" [style.background-color]="getColor(comp.componentType)"></div>
+          <div class="component-info">
+            <div class="component-header">
+              <span class="component-name">{{ comp.displayName }}</span>
+              <span class="component-type-badge" [style.color]="getColor(comp.componentType)">
+                {{ comp.componentType }}
+              </span>
             </div>
-          }
-        </div>
-      </button>
-    } @empty {
-      <div class="empty-state">No components match your search.</div>
-    }
-  </div>
+            <p class="component-description">{{ comp.description }}</p>
+            @if (comp.supportedSignals.length > 0) {
+              <div class="signal-tags">
+                @for (signal of comp.supportedSignals; track signal) {
+                  <span class="signal-tag" [attr.data-signal]="signal">{{ signal }}</span>
+                }
+              </div>
+            }
+          </div>
+        </button>
+      } @empty {
+        <div class="empty-state">No components match your search.</div>
+      }
+    </div>
 
-  <!-- Instance name (shown when a component is selected) -->
-  @if (selectedDefinition(); as selected) {
+    <!-- Instance name (shown when a component is selected) -->
+    @if (selectedDefinition(); as selected) {
     <div class="instance-section">
       <div class="instance-header">
         Adding: <strong>{{ selected.displayName }}</strong> ({{ selected.componentType }})
@@ -136,6 +138,7 @@
       </div>
     }
   }
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

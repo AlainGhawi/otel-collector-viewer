@@ -1,15 +1,14 @@
 .dialog-content {
   min-width: 520px;
-  max-height: 65vh;
+  height: 65vh;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: hidden !important;
 }
 
 .search-bar {
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  flex-shrink: 0;
 }
 
 .search-input {
@@ -36,6 +35,7 @@
   display: flex;
   gap: 4px;
   overflow-x: auto;
+  flex-shrink: 0;
 }
 
 .tab-btn {
@@ -61,12 +61,19 @@
   border-color: var(--color-accent);
 }
 
+.scrollable-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .component-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  overflow-y: auto;
-  max-height: 360px;
 }
 
 .component-item {
