@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent, OtelPipeline, ComponentType, SignalType, parseComponentId, parsePipelineId, ComponentDefinition } from '../models';
+import { OtelConfig, GraphData, createEmptyConfig, ParseError, ValidationIssue, NodeSelection, OtelComponent, OtelPipeline, ComponentType, SignalType, parseComponentId, parsePipelineId, ComponentDefinition, SectionKey, PipelineRole, COMPONENT_TYPE_TO_SECTION } from '../models';
 import { ConfigParserService } from './config-parser.service';
 import { ConfigSerializerService } from './config-serializer.service';
 import { ConfigValidatorService } from './config-validator.service';
@@ -215,7 +215,7 @@ export class ConfigStateService {
     this.applyConfigUpdate(updatedConfig);
   }
 
-  addComponentToPipeline(pipelineId: string, componentId: string, role: 'receivers' | 'processors' | 'exporters'): void {
+  addComponentToPipeline(pipelineId: string, componentId: string, role: PipelineRole): void {
     const config = this._config();
     const updatedConfig: OtelConfig = {
       ...config,
@@ -232,7 +232,7 @@ export class ConfigStateService {
     this.applyConfigUpdate(updatedConfig);
   }
 
-  removeComponentFromPipeline(pipelineId: string, componentId: string, role: 'receivers' | 'processors' | 'exporters'): void {
+  removeComponentFromPipeline(pipelineId: string, componentId: string, role: PipelineRole): void {
     const config = this._config();
     const updatedConfig: OtelConfig = {
       ...config,
@@ -310,22 +310,16 @@ export class ConfigStateService {
     return `${type}/${counter}`;
   }
 
-  private getSectionKey(componentType: ComponentType): 'receivers' | 'processors' | 'exporters' | 'connectors' | 'extensions' {
-    const map: Record<ComponentType, 'receivers' | 'processors' | 'exporters' | 'connectors' | 'extensions'> = {
-      receiver: 'receivers',
-      processor: 'processors',
-      exporter: 'exporters',
-      connector: 'connectors',
-      extension: 'extensions',
-    };
-    return map[componentType];
+  private getSectionKey(componentType: ComponentType): SectionKey {
+    return COMPONENT_TYPE_TO_SECTION[componentType];
   }
 
   private applyConfigUpdate(config: OtelConfig): void {
     const issues = this.validator.validate(config);
     this._validationIssues.set(issues);
     this._config.set(config);
-    this._rawYaml.set(this.serializer.serializeToYaml(config));
+    // Patch the existing YAML to preserve comments and formatting
+    this._rawYaml.set(this.serializer.patchYaml(this._rawYaml(), config));
   }
 
   /* Check for validation issues and attempt to auto-repair the config if possible. */

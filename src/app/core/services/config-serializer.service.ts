@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as yaml from 'js-yaml';
-import { isMap, isSeq, parseDocument } from 'yaml';
-import { OtelConfig, OtelComponent, OtelPipeline } from '../models';
+import { isMap, isSeq, parseDocument, YAMLSeq } from 'yaml';
+import { OtelConfig, OtelComponent, OtelPipeline, ALL_SECTION_KEYS, PIPELINE_ROLES, SectionKey } from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -15,24 +15,10 @@ export class ConfigSerializerService {
     const raw: Record<string, unknown> = {};
 
     // Only include sections that have components
-    if (config.receivers.length > 0) {
-      raw['receivers'] = this.serializeComponents(config.receivers);
-    }
-
-    if (config.processors.length > 0) {
-      raw['processors'] = this.serializeComponents(config.processors);
-    }
-
-    if (config.exporters.length > 0) {
-      raw['exporters'] = this.serializeComponents(config.exporters);
-    }
-
-    if (config.connectors.length > 0) {
-      raw['connectors'] = this.serializeComponents(config.connectors);
-    }
-
-    if (config.extensions.length > 0) {
-      raw['extensions'] = this.serializeComponents(config.extensions);
+    for (const section of ALL_SECTION_KEYS) {
+      if (config[section].length > 0) {
+        raw[section] = this.serializeComponents(config[section]);
+      }
     }
 
     // Service section
@@ -44,6 +30,26 @@ export class ConfigSerializerService {
       noRefs: true,
       sortKeys: false,
     });
+  }
+
+  /**
+   * Patch an existing YAML string with changes from an OtelConfig model.
+   * Preserves comments and formatting by modifying the YAML document tree
+   * rather than rebuilding from scratch.
+   */
+  patchYaml(existingYaml: string, config: OtelConfig): string {
+    if (!existingYaml.trim()) {
+      return this.serializeToYaml(config);
+    }
+
+    const doc = parseDocument(existingYaml);
+
+    for (const section of ALL_SECTION_KEYS) {
+      this.patchSection(doc, section, config[section]);
+    }
+    this.patchServiceNode(doc, config);
+
+    return doc.toString({ indent: 2, lineWidth: 120 });
   }
 
   reformatYaml(rawYaml: string): string {
@@ -59,7 +65,7 @@ export class ConfigSerializerService {
         for (const pair of pipelines.items) {
           const pipeline = pair.value;
           if (isMap(pipeline)) {
-            for (const field of ['receivers', 'processors', 'exporters']) {
+            for (const field of PIPELINE_ROLES) {
               const seq = pipeline.get(field, true);
               if (isSeq(seq)) seq.flow = true;
             }
@@ -69,7 +75,7 @@ export class ConfigSerializerService {
     }
 
     // Flow-style short scalar arrays elsewhere (e.g. targets)
-    for (const section of ['receivers', 'processors', 'exporters', 'extensions']) {
+    for (const section of ALL_SECTION_KEYS) {
       const node = doc.get(section, true);
       if (isMap(node)) this.flowShortArrays(node);
     }
@@ -89,6 +95,152 @@ export class ConfigSerializerService {
     } else if (isSeq(node)) {
       for (const item of (node as any).items) {
         this.flowShortArrays(item);
+      }
+    }
+  }
+
+  private patchSection(doc: any, sectionName: SectionKey, components: OtelComponent[]): void {
+    const sectionNode = doc.get(sectionName, true);
+
+    if (components.length === 0) {
+      if (doc.has(sectionName)) {
+        doc.delete(sectionName);
+      }
+      return;
+    }
+
+    if (!isMap(sectionNode)) {
+      // Section doesn't exist — create it
+      const obj: Record<string, unknown> = {};
+      for (const comp of components) {
+        obj[comp.id] = Object.keys(comp.config).length > 0 ? comp.config : null;
+      }
+      doc.set(sectionName, doc.createNode(obj));
+      return;
+    }
+
+    // Collect existing keys
+    const existingKeys: string[] = [];
+    for (const pair of sectionNode.items) {
+      existingKeys.push(String(pair.key));
+    }
+    const targetIds = new Set(components.map(c => c.id));
+
+    // Remove components not in the new config
+    for (const key of existingKeys) {
+      if (!targetIds.has(key)) {
+        sectionNode.delete(key);
+      }
+    }
+
+    // Add new components that don't exist yet
+    const existingIdSet = new Set(existingKeys);
+    for (const comp of components) {
+      if (!existingIdSet.has(comp.id)) {
+        const value = Object.keys(comp.config).length > 0 ? comp.config : null;
+        sectionNode.set(doc.createNode(comp.id), doc.createNode(value));
+      }
+    }
+  }
+
+  private patchServiceNode(doc: any, config: OtelConfig): void {
+    const serviceNode = doc.get('service', true);
+
+    if (!isMap(serviceNode)) {
+      doc.set('service', doc.createNode(this.serializeService(config)));
+      return;
+    }
+
+    // Patch extensions list
+    if (config.service.extensions && config.service.extensions.length > 0) {
+      const extSeq = doc.createNode(config.service.extensions) as YAMLSeq;
+      extSeq.flow = true;
+      serviceNode.set('extensions', extSeq);
+    } else {
+      serviceNode.delete('extensions');
+    }
+
+    // Patch pipelines
+    this.patchPipelinesNode(doc, serviceNode, config.service.pipelines);
+  }
+
+  private patchPipelinesNode(doc: any, serviceNode: any, pipelines: OtelPipeline[]): void {
+    const pipelinesNode = serviceNode.get('pipelines', true);
+
+    if (pipelines.length === 0) {
+      serviceNode.delete('pipelines');
+      return;
+    }
+
+    if (!isMap(pipelinesNode)) {
+      const node = doc.createNode(this.serializePipelines(pipelines));
+      serviceNode.set('pipelines', node);
+      const created = serviceNode.get('pipelines', true);
+      if (isMap(created)) this.applyPipelineFlowStyle(created);
+      return;
+    }
+
+    // Collect existing pipeline keys
+    const existingKeys: string[] = [];
+    for (const pair of pipelinesNode.items) {
+      existingKeys.push(String(pair.key));
+    }
+    const targetIds = new Set(pipelines.map(p => p.id));
+
+    // Remove pipelines not in config
+    for (const key of existingKeys) {
+      if (!targetIds.has(key)) {
+        pipelinesNode.delete(key);
+      }
+    }
+
+    // Add or update pipelines
+    const existingIdSet = new Set(existingKeys);
+    for (const pipeline of pipelines) {
+      if (!existingIdSet.has(pipeline.id)) {
+        // New pipeline
+        const pipelineObj: Record<string, string[]> = { receivers: pipeline.receivers };
+        if (pipeline.processors.length > 0) {
+          pipelineObj['processors'] = pipeline.processors;
+        }
+        pipelineObj['exporters'] = pipeline.exporters;
+        const node = doc.createNode(pipelineObj);
+        if (isMap(node)) this.applyPipelineFlowStyle(node);
+        pipelinesNode.set(doc.createNode(pipeline.id), node);
+      } else {
+        // Existing pipeline — update role arrays
+        const pipelineNode = pipelinesNode.get(pipeline.id, true);
+        if (isMap(pipelineNode)) {
+          this.patchPipelineRoles(doc, pipelineNode, pipeline);
+        }
+      }
+    }
+  }
+
+  private patchPipelineRoles(doc: any, pipelineNode: any, pipeline: OtelPipeline): void {
+    for (const role of PIPELINE_ROLES) {
+      const items = pipeline[role];
+      if (items.length > 0) {
+        const seq = doc.createNode(items) as YAMLSeq;
+        seq.flow = true;
+        pipelineNode.set(role, seq);
+      } else if (role === 'processors') {
+        pipelineNode.delete(role);
+      } else {
+        const seq = doc.createNode([]) as YAMLSeq;
+        seq.flow = true;
+        pipelineNode.set(role, seq);
+      }
+    }
+  }
+
+  private applyPipelineFlowStyle(mapNode: any): void {
+    for (const pair of mapNode.items) {
+      if (isSeq(pair.value)) {
+        pair.value.flow = true;
+      }
+      if (isMap(pair.value)) {
+        this.applyPipelineFlowStyle(pair.value);
       }
     }
   }

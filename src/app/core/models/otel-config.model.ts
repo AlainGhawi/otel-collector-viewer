@@ -11,6 +11,36 @@ export type ComponentType = 'receiver' | 'processor' | 'exporter' | 'connector' 
 
 export type SignalType = 'traces' | 'metrics' | 'logs';
 
+// ─── Section Keys & Pipeline Roles ──────────────────────────────
+
+/** YAML section keys corresponding to OtelConfig properties */
+export type SectionKey = 'receivers' | 'processors' | 'exporters' | 'connectors' | 'extensions';
+
+/** Pipeline role keys (the component arrays within a pipeline definition) */
+export type PipelineRole = 'receivers' | 'processors' | 'exporters';
+
+/** All section keys in standard order */
+export const ALL_SECTION_KEYS: readonly SectionKey[] = ['receivers', 'processors', 'exporters', 'connectors', 'extensions'] as const;
+
+/** Pipeline roles in standard order */
+export const PIPELINE_ROLES: readonly PipelineRole[] = ['receivers', 'processors', 'exporters'] as const;
+
+/** Maps ComponentType → its SectionKey on OtelConfig */
+export const COMPONENT_TYPE_TO_SECTION: Record<ComponentType, SectionKey> = {
+  receiver: 'receivers',
+  processor: 'processors',
+  exporter: 'exporters',
+  connector: 'connectors',
+  extension: 'extensions',
+};
+
+/** Maps ComponentType → its PipelineRole (only for pipeline-eligible types) */
+export const COMPONENT_TYPE_TO_ROLE: Partial<Record<ComponentType, PipelineRole>> = {
+  receiver: 'receivers',
+  processor: 'processors',
+  exporter: 'exporters',
+};
+
 // ─── Component Models ───────────────────────────────────────────
 
 /**

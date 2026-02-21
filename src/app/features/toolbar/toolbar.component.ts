@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigStateService } from '../../core/services/config-state.service';
-import { ComponentType } from '../../core/models';
+import { ComponentType, PipelineRole, COMPONENT_TYPE_TO_ROLE } from '../../core/models';
 import { ThemeService } from '../../core/services/theme.service';
 import { ConfigUrlService, ConfigTooLargeError } from '../../core/services/config-url.service';
 import { AddComponentDialogComponent, AddComponentDialogResult } from '../../shared/components/add-component-dialog/add-component-dialog.component';
@@ -66,13 +66,8 @@ export class ToolbarComponent {
     });
   }
 
-  private getComponentRole(componentType: ComponentType): 'receivers' | 'processors' | 'exporters' | null {
-    const map: Partial<Record<ComponentType, 'receivers' | 'processors' | 'exporters'>> = {
-      receiver: 'receivers',
-      processor: 'processors',
-      exporter: 'exporters',
-    };
-    return map[componentType] ?? null;
+  private getComponentRole(componentType: ComponentType): PipelineRole | null {
+    return COMPONENT_TYPE_TO_ROLE[componentType] ?? null;
   }
 
   loadSampleConfig(): void {

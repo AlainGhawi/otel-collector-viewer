@@ -2,10 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfigStateService } from '../../../core/services/config-state.service';
-import { SignalType, OtelPipeline, getSignalColor } from '../../../core/models';
+import { SignalType, OtelPipeline, getSignalColor, PipelineRole } from '../../../core/models';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
-
-type PipelineRole = 'receivers' | 'processors' | 'exporters';
 
 @Component({
   selector: 'app-pipeline-manager-dialog',
@@ -43,20 +41,7 @@ export class PipelineManagerDialogComponent {
     const config = this.state.config();
     const existing = new Set(pipeline[role]);
 
-    let allComponents: string[];
-    switch (role) {
-      case 'receivers':
-        allComponents = config.receivers.map(c => c.id);
-        break;
-      case 'processors':
-        allComponents = config.processors.map(c => c.id);
-        break;
-      case 'exporters':
-        allComponents = config.exporters.map(c => c.id);
-        break;
-    }
-
-    return allComponents.filter(id => !existing.has(id));
+    return config[role].map(c => c.id).filter(id => !existing.has(id));
   }
 
   toggleAddDropdown(pipelineId: string, role: PipelineRole): void {

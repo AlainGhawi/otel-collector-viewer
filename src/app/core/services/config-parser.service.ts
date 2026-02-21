@@ -11,6 +11,8 @@ import {
   createEmptyConfig,
   parseComponentId,
   parsePipelineId,
+  COMPONENT_TYPE_TO_SECTION,
+  PIPELINE_ROLES,
 } from '../models';
 
 @Injectable({
@@ -27,14 +29,12 @@ export class ConfigParserService {
       return createEmptyConfig();
     }
 
-    return {
-      receivers: this.parseComponents(raw['receivers'], 'receiver'),
-      processors: this.parseComponents(raw['processors'], 'processor'),
-      exporters: this.parseComponents(raw['exporters'], 'exporter'),
-      connectors: this.parseComponents(raw['connectors'], 'connector'),
-      extensions: this.parseComponents(raw['extensions'], 'extension'),
-      service: this.parseService(raw['service']),
-    };
+    const config = createEmptyConfig();
+    for (const [componentType, sectionKey] of Object.entries(COMPONENT_TYPE_TO_SECTION)) {
+      config[sectionKey] = this.parseComponents(raw[sectionKey], componentType as ComponentType);
+    }
+    config.service = this.parseService(raw['service']);
+    return config;
   }
 
   /**
@@ -170,14 +170,11 @@ export class ConfigParserService {
       const { signal, name } = parsePipelineId(id);
       const pipelineConfig = (config as Record<string, unknown>) ?? {};
 
-      return {
-        id,
-        signal,
-        name,
-        receivers: this.toStringArray(pipelineConfig['receivers']),
-        processors: this.toStringArray(pipelineConfig['processors']),
-        exporters: this.toStringArray(pipelineConfig['exporters']),
-      };
+      const pipeline: OtelPipeline = { id, signal, name, receivers: [], processors: [], exporters: [] };
+      for (const role of PIPELINE_ROLES) {
+        pipeline[role] = this.toStringArray(pipelineConfig[role]);
+      }
+      return pipeline;
     });
   }
 
