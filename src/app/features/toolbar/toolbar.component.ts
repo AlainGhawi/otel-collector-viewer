@@ -8,6 +8,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { ConfigUrlService, ConfigTooLargeError } from '../../core/services/config-url.service';
 import { AddComponentDialogComponent, AddComponentDialogResult } from '../../shared/components/add-component-dialog/add-component-dialog.component';
 import { PipelineManagerDialogComponent } from '../../shared/components/pipeline-manager-dialog/pipeline-manager-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-toolbar',
@@ -114,7 +115,17 @@ export class ToolbarComponent {
   }
 
   reset(): void {
-    this.state.reset();
+    this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Clear Configuration',
+        message: 'Are you sure you want to clear the configuration?',
+        confirmText: 'Clear',
+      } satisfies ConfirmDialogData,
+    }).afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.state.reset();
+      }
+    });
   }
 
   async shareConfig(): Promise<void> {
