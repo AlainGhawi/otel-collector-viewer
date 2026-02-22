@@ -104,10 +104,23 @@
 }
 
 .error-summary {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 12px;
+  color: #ff8a80;
   cursor: pointer;
   padding: 4px 0;
   border-radius: 4px;
   transition: background 0.15s;
+}
+
+.error-summary:disabled {
+  cursor: default;
+  opacity: 0.7;
 }
 
 .error-summary:hover {

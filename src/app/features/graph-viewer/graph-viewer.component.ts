@@ -1,11 +1,11 @@
 import {
   Component,
   ElementRef,
-  ViewChild,
   AfterViewInit,
-  OnDestroy,
+  DestroyRef,
   effect,
   inject,
+  viewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
 import { ConfigStateService } from '../../core/services/config-state.service';
@@ -46,13 +46,14 @@ interface PositionedNode extends GraphNode {
   selector: 'app-graph-viewer',
   standalone: true,
   templateUrl: './graph-viewer.component.html',
-  styleUrls: ['./graph-viewer.component.css'],
+  styleUrl: './graph-viewer.component.css',
 })
-export class GraphViewerComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('graphSvg', { static: true }) svgRef!: ElementRef<SVGSVGElement>;
-  @ViewChild('graphContainer', { static: true }) containerRef!: ElementRef<HTMLDivElement>;
+export class GraphViewerComponent implements AfterViewInit {
+  readonly svgRef = viewChild.required<ElementRef<SVGSVGElement>>('graphSvg');
+  readonly containerRef = viewChild.required<ElementRef<HTMLDivElement>>('graphContainer');
 
   private readonly state = inject(ConfigStateService);
+  private readonly destroyRef = inject(DestroyRef);
   private svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   private rootGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
   private resizeObserver: ResizeObserver | null = null;
@@ -69,6 +70,11 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
         this.renderGraph(graphData);
       }
     });
+
+    this.destroyRef.onDestroy(() => {
+      this.resizeObserver?.disconnect();
+      d3.select('body').on('keydown.graph', null);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -76,13 +82,8 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
     this.setupResizeObserver();
   }
 
-  ngOnDestroy(): void {
-    this.resizeObserver?.disconnect();
-    d3.select('body').on('keydown.graph', null);
-  }
-
   private initializeSvg(): void {
-    this.svg = d3.select(this.svgRef.nativeElement);
+    this.svg = d3.select(this.svgRef().nativeElement);
 
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.2, 3])
@@ -125,7 +126,7 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
         this.renderGraph(graphData);
       }
     });
-    this.resizeObserver.observe(this.containerRef.nativeElement);
+    this.resizeObserver.observe(this.containerRef().nativeElement);
   }
 
   private renderGraph(data: GraphData): void {
@@ -385,8 +386,8 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
   private fitToView(nodes: PositionedNode[]): void {
     if (nodes.length === 0) return;
 
-    const containerWidth = this.containerRef.nativeElement.clientWidth;
-    const containerHeight = this.containerRef.nativeElement.clientHeight;
+    const containerWidth = this.containerRef().nativeElement.clientWidth;
+    const containerHeight = this.containerRef().nativeElement.clientHeight;
 
     const maxX = Math.max(...nodes.map(n => n.px + NODE_WIDTH));
     const maxY = Math.max(...nodes.map(n => n.py + NODE_HEIGHT));
@@ -409,8 +410,8 @@ export class GraphViewerComponent implements AfterViewInit, OnDestroy {
   }
 
   private renderEmptyState(): void {
-    const width = this.containerRef.nativeElement.clientWidth;
-    const height = this.containerRef.nativeElement.clientHeight;
+    const width = this.containerRef().nativeElement.clientWidth;
+    const height = this.containerRef().nativeElement.clientHeight;
 
     const g = this.rootGroup.append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);

@@ -15,18 +15,20 @@
   <div class="error-banner">
     @for (error of state.errors(); track error.message) {
     <div class="error-item">
-      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
-      <p class="error-summary" (click)="error.line ? goToLine(error.line) : null">
+      <button class="error-summary"
+              [disabled]="!error.line"
+              (click)="error.line ? goToLine(error.line) : null"
+              [attr.aria-label]="error.line ? 'Go to error at line ' + error.line : null">
         ⚠️ {{ error.message }}
         @if (error.line) {
         <span class="error-line-link">→ line {{ error.line }}</span>
         }
-      </p>
+      </button>
       @if (error.fullError && error.fullError !== error.message) {
       <button class="error-toggle" (click)="toggleErrorDetail(error.message)">
-        {{ expandedErrors.has(error.message) ? '▼ Hide detail' : '▶ Show detail' }}
+        {{ expandedErrors().has(error.message) ? '▼ Hide detail' : '▶ Show detail' }}
       </button>
-      @if (expandedErrors.has(error.message)) {
+      @if (expandedErrors().has(error.message)) {
       <pre class="error-detail">{{ error.fullError }}</pre>
       }
       }

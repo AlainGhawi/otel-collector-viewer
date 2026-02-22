@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject, effect } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, DestroyRef, inject, effect, viewChild, signal } from '@angular/core';
 import { ConfigStateService } from '../../core/services/config-state.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { EditorState, Compartment } from '@codemirror/state';
@@ -14,13 +14,14 @@ import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
   templateUrl: './yaml-panel.component.html',
   styleUrl: './yaml-panel.component.css',
 })
-export class YamlPanelComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('editorContainer', { static: true }) editorContainerRef!: ElementRef<HTMLDivElement>;
+export class YamlPanelComponent implements AfterViewInit {
+  readonly editorContainerRef = viewChild.required<ElementRef<HTMLDivElement>>('editorContainer');
 
   readonly state = inject(ConfigStateService);
   readonly theme = inject(ThemeService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  expandedErrors = new Set<string>();
+  readonly expandedErrors = signal(new Set<string>());
 
   private editorView: EditorView | null = null;
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -52,23 +53,27 @@ export class YamlPanelComponent implements AfterViewInit, OnDestroy {
         this.updateEditorTheme(isDark);
       }
     });
+
+    this.destroyRef.onDestroy(() => {
+      this.editorView?.destroy();
+      if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    });
   }
 
   ngAfterViewInit(): void {
     this.initEditor();
   }
 
-  ngOnDestroy(): void {
-    this.editorView?.destroy();
-    if (this.debounceTimer) clearTimeout(this.debounceTimer);
-  }
-
   toggleErrorDetail(key: string): void {
-    if (this.expandedErrors.has(key)) {
-      this.expandedErrors.delete(key);
-    } else {
-      this.expandedErrors.add(key);
-    }
+    this.expandedErrors.update(set => {
+      const next = new Set(set);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
   }
 
   copyToClipboard(): void {
@@ -143,7 +148,7 @@ export class YamlPanelComponent implements AfterViewInit, OnDestroy {
 
     this.editorView = new EditorView({
       state: startState,
-      parent: this.editorContainerRef.nativeElement,
+      parent: this.editorContainerRef().nativeElement,
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, HostListener, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, HostListener, inject, viewChild, afterNextRender } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs';
 import { GraphViewerComponent } from './features/graph-viewer/graph-viewer.component';
@@ -14,35 +14,37 @@ import { ConfigStateService, ConfigUrlService } from './core/services';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 
-  @ViewChild('yamlPanel') yamlPanel!: YamlPanelComponent;
+  readonly yamlPanel = viewChild(YamlPanelComponent);
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly configState = inject(ConfigStateService);
   private readonly configUrlService = inject(ConfigUrlService);
-  
+
   yamlPanelWidthPercent = 30; // starts at 30% of viewport
 
   private isResizing = false;
   private readonly MIN_PERCENT = 15;
   private readonly MAX_PERCENT = 60;
 
-  ngOnInit(): void {
-    // Try Angular Router first
-    this.route.queryParams.pipe(take(1)).subscribe(params => {
-      let encodedConfig = params['config'];
+  constructor() {
+    afterNextRender(() => {
+      // Try Angular Router first
+      this.route.queryParams.pipe(take(1)).subscribe(params => {
+        let encodedConfig = params['config'];
 
-      // Fallback: parse URL directly if Angular Router doesn't have it
-      if (!encodedConfig && window.location.search) {
-        const urlParams = new URLSearchParams(window.location.search);
-        encodedConfig = urlParams.get('config');
-      }
+        // Fallback: parse URL directly if Angular Router doesn't have it
+        if (!encodedConfig && window.location.search) {
+          const urlParams = new URLSearchParams(window.location.search);
+          encodedConfig = urlParams.get('config');
+        }
 
-      if (encodedConfig) {
-        this.loadConfigFromUrl(encodedConfig);
-      }
+        if (encodedConfig) {
+          this.loadConfigFromUrl(encodedConfig);
+        }
+      });
     });
   }
 
@@ -80,6 +82,6 @@ export class AppComponent implements OnInit {
   }
 
   onGoToLine(line: number): void {
-    this.yamlPanel.goToLine(line);
+    this.yamlPanel()?.goToLine(line);
   }
 }

@@ -119,8 +119,6 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 - [x] Export to clipboard / download
 - [x] Add new components from a palette/menu
 - [x] Component library (known receivers, processors, exporters)
-- [ ] Connect/disconnect pipeline edges visually
-- [ ] Pipeline filtering by signal type
 - [x] Dark/light theme toggle
 - [x] Shareable config links (URL-encoded)
 

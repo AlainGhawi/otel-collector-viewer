@@ -14,7 +14,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
   selector: 'app-toolbar',
   standalone: true,
   templateUrl: './toolbar.component.html',
-  styleUrls: ['./toolbar.component.css'],
+  styleUrl: './toolbar.component.css',
 })
 export class ToolbarComponent {
   readonly state = inject(ConfigStateService);
