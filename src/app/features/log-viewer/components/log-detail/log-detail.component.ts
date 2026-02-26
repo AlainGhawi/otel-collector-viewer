@@ -61,10 +61,6 @@ export class LogDetailComponent {
     return JSON.stringify(parsed, null, 2);
   }
 
-  filterByTraceId(traceId: string): void {
-    this.state.updateFilters({ traceId });
-  }
-
   filterByService(service: string): void {
     this.state.updateFilters({ services: [service] });
   }

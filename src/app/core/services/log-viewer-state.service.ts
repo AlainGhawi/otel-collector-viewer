@@ -27,6 +27,7 @@ export class LogViewerStateService {
   private readonly _isLoading = signal(false);
   private readonly _selectedRecord = signal<ParsedLogRecord | null>(null);
   private readonly _totalParseErrors = signal(0);
+  private readonly _sortDirection = signal<'asc' | 'desc'>('asc');
 
   // Track active job metadata for enrichment
   private readonly activeJobs = new Map<
@@ -42,13 +43,19 @@ export class LogViewerStateService {
   readonly parseProgress = this._parseProgress.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly selectedRecord = this._selectedRecord.asReadonly();
+  readonly sortDirection = this._sortDirection.asReadonly();
 
   // ─── Computed Signals ───────────────────────────────────────────
 
   readonly filteredRecords = computed<ParsedLogRecord[]>(() => {
     const records = this._allRecords();
     const filters = this._filters();
-    return this.applyFilters(records, filters);
+    const direction = this._sortDirection();
+    const filtered = this.applyFilters(records, filters);
+    if (direction === 'desc') {
+      return [...filtered].reverse();
+    }
+    return filtered;
   });
 
   readonly summaryStats = computed<LogSummaryStats>(() => {
@@ -136,6 +143,10 @@ export class LogViewerStateService {
 
   resetFilters(): void {
     this._filters.set(createDefaultFilterState());
+  }
+
+  toggleSortDirection(): void {
+    this._sortDirection.update((d) => (d === 'asc' ? 'desc' : 'asc'));
   }
 
   selectRecord(record: ParsedLogRecord | null): void {
@@ -270,13 +281,17 @@ export class LogViewerStateService {
       });
     }
 
-    // Trace ID filter (exact match)
-    if (filters.traceId) {
-      const traceId = filters.traceId.toLowerCase();
+    // HTTP method filter
+    if (filters.httpMethods.length > 0) {
+      const methodSet = new Set(filters.httpMethods);
+      result = result.filter((r) => r.httpMethod && methodSet.has(r.httpMethod));
+    }
+
+    // HTTP path filter (substring match)
+    if (filters.httpPath) {
+      const pathLower = filters.httpPath.toLowerCase();
       result = result.filter(
-        (r) =>
-          r.traceId?.toLowerCase() === traceId ||
-          r.envelopeTraceId?.toLowerCase() === traceId
+        (r) => r.httpPath?.toLowerCase().includes(pathLower) ?? false
       );
     }
 

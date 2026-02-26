@@ -1,53 +1,72 @@
 <header class="toolbar">
-    <div class="toolbar-left">
-        <div class="logo">
-            <img src="otel-logo.svg" alt="OpenTelemetry" class="logo-icon" />
-            <span class="logo-text">OTel Collector Viewer</span>
+    <div class="toolbar-top">
+        <div class="toolbar-left">
+            <div class="logo">
+                <img src="otel-logo.svg" alt="OpenTelemetry" class="logo-icon" />
+                <span class="logo-text">OTel Collector Viewer</span>
+            </div>
+        </div>
+
+        <div class="toolbar-center">
+            <button
+                class="tab-button"
+                [class.active]="activeTab() === 'config'"
+                (click)="tabChange.emit('config')">
+                Config Viewer
+            </button>
+            <button
+                class="tab-button"
+                [class.active]="activeTab() === 'logs'"
+                (click)="tabChange.emit('logs')">
+                Log Viewer
+            </button>
+        </div>
+
+        <div class="toolbar-right">
+            <div class="theme-toggle-container">
+                <span class="theme-icon">🌙</span>
+                <label class="theme-toggle">
+                    <input
+                        type="checkbox"
+                        [checked]="themeService.isLight()"
+                        (change)="themeService.toggleTheme()"
+                        [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-icon">☀️</span>
+            </div>
         </div>
     </div>
 
-    <div class="toolbar-center">
-        <button class="btn btn-add" (click)="openAddComponent()">
-            ➕ Add Component
-        </button>
-        <button class="btn btn-pipeline" (click)="openPipelineManager()" [disabled]="!state.hasConfig()">
-            🔗 Pipelines
-        </button>
-        <button class="btn" (click)="loadSampleConfig()">
-            📄 Load Sample
-        </button>
-        <button class="btn" (click)="importFile()">
-            📂 Import YAML
-        </button>
-        <button class="btn" (click)="exportFile()" [disabled]="!state.hasConfig()">
-            💾 Export YAML
-        </button>
-        <button
-            class="btn"
-            (click)="shareConfig()"
-            [disabled]="!state.hasConfig()"
-            title="Copy shareable link to clipboard">
-            🔗 Share
-        </button>
-        <button class="btn btn-danger" (click)="reset()" [disabled]="!state.hasConfig()">
-            🗑️ Clear
-        </button>
-    </div>
-
-    <div class="toolbar-right">
-        <div class="theme-toggle-container">
-            <span class="theme-icon">🌙</span>
-            <label class="theme-toggle">
-                <input
-                    type="checkbox"
-                    [checked]="themeService.isLight()"
-                    (change)="themeService.toggleTheme()"
-                    [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
-                <span class="slider"></span>
-            </label>
-            <span class="theme-icon">☀️</span>
+    @if (activeTab() === 'config') {
+        <div class="toolbar-actions">
+            <button class="btn btn-add" (click)="openAddComponent()">
+                ➕ Add Component
+            </button>
+            <button class="btn btn-pipeline" (click)="openPipelineManager()" [disabled]="!state.hasConfig()">
+                🔗 Pipelines
+            </button>
+            <button class="btn" (click)="loadSampleConfig()">
+                📄 Load Sample
+            </button>
+            <button class="btn" (click)="importFile()">
+                📂 Import YAML
+            </button>
+            <button class="btn" (click)="exportFile()" [disabled]="!state.hasConfig()">
+                💾 Export YAML
+            </button>
+            <button
+                class="btn"
+                (click)="shareConfig()"
+                [disabled]="!state.hasConfig()"
+                title="Copy shareable link to clipboard">
+                🔗 Share
+            </button>
+            <button class="btn btn-danger" (click)="reset()" [disabled]="!state.hasConfig()">
+                🗑️ Clear
+            </button>
         </div>
-    </div>
+    }
 
     <!-- Hidden file input -->
     <input type="file" #fileInput accept=".yaml,.yml" (change)="onFileSelected($event)" style="display: none" />

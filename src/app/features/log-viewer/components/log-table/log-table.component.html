@@ -1,4 +1,4 @@
-<div class="table-container">
+<div class="table-container" (click)="closeFilterDropdown()">
   <!-- Table controls -->
   <div class="table-controls">
     <button class="control-btn" (click)="toggleTimezone()">
@@ -25,11 +25,93 @@
   <!-- Table header -->
   <div class="table-header">
     @for (col of visibleColumns; track col.key) {
-      <div class="header-cell" [class]="'col-' + col.key">
-        {{ col.label }}
+      <div class="header-cell"
+           [class.filterable]="col.filterable"
+           [class.has-active-filter]="hasActiveFilter(col.key)"
+           [style.width.px]="col.flex ? null : col.width"
+           [style.flex]="col.flex ? '1 1 0' : null"
+           [style.min-width.px]="col.minWidth">
+
+        <!-- Timestamp column with sort -->
+        @if (col.key === 'timestamp') {
+          <span class="header-label" (click)="toggleSort()">
+            {{ col.label }}
+            <span class="sort-icon">{{ state.sortDirection() === 'asc' ? '▲' : '▼' }}</span>
+          </span>
+        } @else if (col.filterable) {
+          <!-- Filterable column header -->
+          <span class="header-label" (click)="toggleFilterDropdown(col.key, $event)">
+            {{ col.label }}
+            <svg class="filter-icon" [class.active]="hasActiveFilter(col.key)" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2h14l-5.5 6.5V14l-3-2v-3.5z"/></svg>
+          </span>
+
+          <!-- Filter dropdown -->
+          @if (openFilterColumn() === col.key) {
+            <div class="column-filter-dropdown" (click)="$event.stopPropagation()">
+              @switch (col.key) {
+                @case ('severity') {
+                  @for (sev of availableSeverities(); track sev) {
+                    <label class="filter-option">
+                      <input type="checkbox"
+                             [checked]="isFilterValueActive('severity', sev)"
+                             (change)="toggleColumnFilter('severity', sev)" />
+                      <span class="severity-tag" [class]="'severity-' + sev.toLowerCase()">{{ sev }}</span>
+                    </label>
+                  }
+                }
+                @case ('service') {
+                  @for (svc of availableServices(); track svc) {
+                    <label class="filter-option">
+                      <input type="checkbox"
+                             [checked]="isFilterValueActive('service', svc)"
+                             (change)="toggleColumnFilter('service', svc)" />
+                      {{ svc }}
+                    </label>
+                  }
+                }
+                @case ('httpMethod') {
+                  @for (method of availableMethods(); track method) {
+                    <label class="filter-option">
+                      <input type="checkbox"
+                             [checked]="isFilterValueActive('httpMethod', method)"
+                             (change)="toggleColumnFilter('httpMethod', method)" />
+                      {{ method }}
+                    </label>
+                  }
+                }
+                @case ('httpPath') {
+                  <input
+                    type="text"
+                    class="path-filter-input"
+                    placeholder="Filter path..."
+                    [value]="getPathFilterValue()"
+                    (input)="onPathFilterInput($any($event.target).value)"
+                    (click)="$event.stopPropagation()" />
+                }
+                @case ('httpStatus') {
+                  @for (cat of availableStatusCategories; track cat) {
+                    <label class="filter-option">
+                      <input type="checkbox"
+                             [checked]="isFilterValueActive('httpStatus', cat)"
+                             (change)="toggleColumnFilter('httpStatus', cat)" />
+                      <span [class]="'status-' + cat">{{ cat }}</span>
+                    </label>
+                  }
+                }
+              }
+            </div>
+          }
+        } @else {
+          <span class="header-label">{{ col.label }}</span>
+        }
+
+        <!-- Resize handle -->
+        <div class="resize-handle" (mousedown)="onResizeStart($event, col.key)"></div>
       </div>
     }
-    <div class="header-cell col-actions"></div>
+    <div class="header-cell col-actions"
+         [style.width.px]="50"
+         [style.min-width.px]="40"></div>
   </div>
 
   <!-- Virtual scroll viewport -->
@@ -47,7 +129,10 @@
         (click)="toggleRow(record)">
 
         @for (col of visibleColumns; track col.key) {
-          <div class="cell" [class]="'col-' + col.key">
+          <div class="cell"
+               [style.width.px]="col.flex ? null : col.width"
+               [style.flex]="col.flex ? '1 1 0' : null"
+               [style.min-width.px]="col.minWidth">
             @switch (col.key) {
               @case ('timestamp') {
                 <span class="mono">{{ formatTimestamp(record.timestamp) }}</span>
@@ -76,21 +161,13 @@
                   </span>
                 }
               }
-              @case ('traceId') {
-                @if (record.traceId) {
-                  <span
-                    class="mono trace-link"
-                    [title]="record.traceId"
-                    (click)="onTraceClick(record.traceId!, $event)">
-                    {{ record.traceId.slice(0, 8) }}...
-                  </span>
-                }
-              }
             }
           </div>
         }
 
-        <div class="cell col-actions">
+        <div class="cell col-actions"
+             [style.width.px]="50"
+             [style.min-width.px]="40">
           <button class="copy-btn" (click)="copyRecord(record, $event)" title="Copy JSON">
             copy
           </button>

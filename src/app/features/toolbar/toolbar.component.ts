@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,6 +17,9 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
   styleUrl: './toolbar.component.css',
 })
 export class ToolbarComponent {
+  readonly activeTab = input.required<'config' | 'logs'>();
+  readonly tabChange = output<'config' | 'logs'>();
+
   readonly state = inject(ConfigStateService);
   readonly themeService = inject(ThemeService);
   private readonly http = inject(HttpClient);

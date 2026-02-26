@@ -1,20 +1,5 @@
 <div class="app-layout">
-    <app-toolbar />
-
-    <div class="tab-bar">
-        <button
-            class="tab-button"
-            [class.active]="activeTab() === 'config'"
-            (click)="setActiveTab('config')">
-            Config Viewer
-        </button>
-        <button
-            class="tab-button"
-            [class.active]="activeTab() === 'logs'"
-            (click)="setActiveTab('logs')">
-            Log Viewer
-        </button>
-    </div>
+    <app-toolbar [activeTab]="activeTab()" (tabChange)="setActiveTab($event)" />
 
     <div class="app-content" [hidden]="activeTab() !== 'config'">
         <div class="graph-area">

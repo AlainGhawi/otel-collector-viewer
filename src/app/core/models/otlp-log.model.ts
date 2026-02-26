@@ -146,7 +146,8 @@ export interface LogFilterState {
   };
   services: string[];
   httpStatusCategories: HttpStatusCategory[];
-  traceId: string;
+  httpMethods: string[];
+  httpPath: string;
 }
 
 export function createDefaultFilterState(): LogFilterState {
@@ -156,7 +157,8 @@ export function createDefaultFilterState(): LogFilterState {
     timeRange: { start: null, end: null },
     services: [],
     httpStatusCategories: [],
-    traceId: '',
+    httpMethods: [],
+    httpPath: '',
   };
 }
 

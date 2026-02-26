@@ -11,9 +11,7 @@
 
       @if (record().envelopeTraceId) {
         <span class="kv-key">Trace ID</span>
-        <span class="kv-val mono clickable" (click)="filterByTraceId(record().envelopeTraceId!)">
-          {{ record().envelopeTraceId }}
-        </span>
+        <span class="kv-val mono">{{ record().envelopeTraceId }}</span>
       }
 
       @if (record().envelopeSpanId) {
@@ -105,9 +103,7 @@
       }
       @if (record().traceId) {
         <span class="kv-key">Trace ID</span>
-        <span class="kv-val mono clickable" (click)="filterByTraceId(record().traceId!)">
-          {{ record().traceId }}
-        </span>
+        <span class="kv-val mono">{{ record().traceId }}</span>
       }
       @if (record().serviceName) {
         <span class="kv-key">Service</span>

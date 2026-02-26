@@ -54,73 +54,6 @@
   }
 }
 
-.pill-group {
-  display: flex;
-  gap: 4px;
-}
-
-.pill {
-  padding: 3px 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  letter-spacing: 0.3px;
-
-  &.inactive {
-    opacity: 0.3;
-  }
-}
-
-.severity-pill {
-  background: transparent;
-  border-color: currentColor;
-
-  &.severity-trace { color: #9e9e9e; }
-  &.severity-debug { color: #64b5f6; }
-  &.severity-info { color: #4caf50; }
-  &.severity-warn { color: #ffc107; }
-  &.severity-error { color: #ff5252; }
-  &.severity-fatal { color: #d50000; }
-}
-
-.http-pill {
-  background: transparent;
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-
-  &.inactive {
-    opacity: 0.3;
-  }
-
-  &.http-2xx:not(.inactive) { color: #4caf50; border-color: #4caf50; }
-  &.http-3xx:not(.inactive) { color: #64b5f6; border-color: #64b5f6; }
-  &.http-4xx:not(.inactive) { color: #ffc107; border-color: #ffc107; }
-  &.http-5xx:not(.inactive) { color: #ff5252; border-color: #ff5252; }
-}
-
-.filter-select {
-  padding: 4px 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--color-text-primary);
-  font-size: 12px;
-  outline: none;
-  cursor: pointer;
-
-  &:focus {
-    border-color: var(--color-accent);
-  }
-
-  option {
-    background: var(--color-bg-secondary);
-    color: var(--color-text-primary);
-  }
-}
-
 .time-input {
   padding: 4px 8px;
   border: 1px solid var(--color-border);
@@ -143,26 +76,6 @@
 .time-separator {
   color: var(--color-text-muted);
   font-size: 12px;
-}
-
-.trace-input {
-  width: 160px;
-  padding: 4px 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--color-text-primary);
-  font-size: 11px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  outline: none;
-
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
-
-  &:focus {
-    border-color: var(--color-accent);
-  }
 }
 
 .clear-btn {
