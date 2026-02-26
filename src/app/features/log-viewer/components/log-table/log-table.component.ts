@@ -40,13 +40,13 @@ export class LogTableComponent implements OnDestroy {
   readonly openFilterColumn = signal<string | null>(null);
 
   readonly columns = signal<ColumnDef[]>([
-    { key: 'timestamp', label: 'Timestamp', visible: true, filterable: false, width: 180, minWidth: 100, flex: false },
-    { key: 'severity', label: 'Severity', visible: true, filterable: true, width: 70, minWidth: 50, flex: false },
-    { key: 'service', label: 'Service', visible: true, filterable: true, width: 120, minWidth: 60, flex: false },
-    { key: 'message', label: 'Message', visible: true, filterable: false, width: 200, minWidth: 120, flex: true },
-    { key: 'httpMethod', label: 'Method', visible: true, filterable: true, width: 60, minWidth: 40, flex: false },
-    { key: 'httpPath', label: 'Path', visible: true, filterable: true, width: 180, minWidth: 80, flex: false },
-    { key: 'httpStatus', label: 'Status', visible: true, filterable: true, width: 50, minWidth: 40, flex: false },
+    { key: 'timestamp', label: 'Timestamp', visible: true, filterable: false, width: 170, minWidth: 115, flex: false },
+    { key: 'severity', label: 'Severity', visible: true, filterable: true, width: 90, minWidth: 90, flex: false },
+    { key: 'service', label: 'Service', visible: true, filterable: true, width: 110, minWidth: 85, flex: false },
+    { key: 'message', label: 'Message', visible: true, filterable: false, width: 250, minWidth: 80, flex: false },
+    { key: 'httpMethod', label: 'Method', visible: true, filterable: true, width: 80, minWidth: 80, flex: false },
+    { key: 'httpPath', label: 'Path', visible: true, filterable: true, width: 140, minWidth: 65, flex: false },
+    { key: 'httpStatus', label: 'Status', visible: true, filterable: true, width: 75, minWidth: 75, flex: false },
   ]);
 
   // ─── Column filter computed values ──────────────────────────────
@@ -244,22 +244,7 @@ export class LogTableComponent implements OnDestroy {
     const col = this.columns().find((c) => c.key === columnKey);
     if (!col) return;
 
-    let startWidth = col.width;
-
-    // If the column is flex, read its actual rendered width and convert to fixed
-    if (col.flex) {
-      const headerCell = (event.target as HTMLElement).parentElement;
-      if (headerCell) {
-        startWidth = headerCell.getBoundingClientRect().width;
-      }
-      this.columns.update((cols) =>
-        cols.map((c) =>
-          c.key === columnKey ? { ...c, flex: false, width: startWidth } : c
-        )
-      );
-    }
-
-    this.resizing = { columnKey, startX: event.clientX, startWidth };
+    this.resizing = { columnKey, startX: event.clientX, startWidth: col.width };
     document.addEventListener('mousemove', this.boundOnResizeMove);
     document.addEventListener('mouseup', this.boundOnResizeEnd);
     document.body.style.cursor = 'col-resize';

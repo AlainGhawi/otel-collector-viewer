@@ -94,7 +94,6 @@
   color: var(--color-text-muted);
   overflow: visible;
   white-space: nowrap;
-  flex-shrink: 0;
   padding: 0 8px;
   border-right: 1px solid var(--color-border);
 
@@ -271,7 +270,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 4px;
-  flex-shrink: 0;
 }
 
 .mono {
@@ -279,10 +277,10 @@
   font-size: 11px;
 }
 
-// Actions column
+// Actions column — fills remaining space, content right-aligned
 .col-actions {
+  flex: 1 0 40px;
   text-align: right;
-  flex-shrink: 0;
 }
 
 // Severity tag
@@ -322,12 +320,14 @@
 .status-5xx { color: #ff5252; }
 
 .copy-btn {
-  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
   border: none;
   border-radius: 3px;
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 10px;
   cursor: pointer;
   transition: all 0.15s;
 
