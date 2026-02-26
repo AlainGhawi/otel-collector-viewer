@@ -1,0 +1,50 @@
+<div class="summary-bar">
+  <div class="stat-group">
+    <span class="stat-label">Total</span>
+    <span class="stat-value">{{ state.summaryStats().totalRecords | number }}</span>
+    @if (state.summaryStats().filteredRecords !== state.summaryStats().totalRecords) {
+      <span class="stat-filtered">({{ state.summaryStats().filteredRecords | number }} shown)</span>
+    }
+  </div>
+
+  <div class="stat-divider"></div>
+
+  <div class="severity-badges">
+    @for (level of severityLevels; track level) {
+      @if (state.summaryStats().severityCounts[level] > 0) {
+        <span class="severity-badge" [class]="severityClass(level)">
+          {{ level }}: {{ state.summaryStats().severityCounts[level] | number }}
+        </span>
+      }
+    }
+  </div>
+
+  <div class="stat-divider"></div>
+
+  <div class="stat-group">
+    <span class="stat-label">Time Range</span>
+    @if (state.summaryStats().timeRange.earliest; as earliest) {
+      <span class="stat-value stat-time">
+        {{ formatTimestamp(earliest) }} — {{ formatTimestamp(state.summaryStats().timeRange.latest!) }}
+      </span>
+    } @else {
+      <span class="stat-value stat-muted">—</span>
+    }
+  </div>
+
+  @if (state.summaryStats().filesLoaded > 0) {
+    <div class="stat-divider"></div>
+    <div class="stat-group">
+      <span class="stat-label">Files</span>
+      <span class="stat-value">{{ state.summaryStats().filesLoaded }}</span>
+    </div>
+  }
+
+  @if (state.summaryStats().totalParseErrors > 0) {
+    <div class="stat-divider"></div>
+    <div class="stat-group">
+      <span class="stat-label">Skipped</span>
+      <span class="stat-value stat-error">{{ state.summaryStats().totalParseErrors }}</span>
+    </div>
+  }
+</div>

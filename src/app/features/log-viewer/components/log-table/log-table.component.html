@@ -1,0 +1,105 @@
+<div class="table-container">
+  <!-- Table controls -->
+  <div class="table-controls">
+    <button class="control-btn" (click)="toggleTimezone()">
+      {{ useUTC() ? 'UTC' : 'Local' }}
+    </button>
+    <div class="column-menu-wrapper">
+      <button class="control-btn" (click)="toggleColumnMenu()">Columns</button>
+      @if (showColumnMenu()) {
+        <div class="column-menu">
+          @for (col of columns(); track col.key) {
+            <label class="column-option">
+              <input
+                type="checkbox"
+                [checked]="col.visible"
+                (change)="toggleColumn(col.key)" />
+              {{ col.label }}
+            </label>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Table header -->
+  <div class="table-header">
+    @for (col of visibleColumns; track col.key) {
+      <div class="header-cell" [class]="'col-' + col.key">
+        {{ col.label }}
+      </div>
+    }
+    <div class="header-cell col-actions"></div>
+  </div>
+
+  <!-- Virtual scroll viewport -->
+  <cdk-virtual-scroll-viewport
+    [itemSize]="36"
+    class="table-viewport">
+    <div
+      *cdkVirtualFor="let record of state.filteredRecords(); trackBy: trackByRecord"
+      class="table-row-wrapper">
+
+      <div
+        class="table-row"
+        [class]="severityClass(record)"
+        [class.expanded]="isExpanded(record)"
+        (click)="toggleRow(record)">
+
+        @for (col of visibleColumns; track col.key) {
+          <div class="cell" [class]="'col-' + col.key">
+            @switch (col.key) {
+              @case ('timestamp') {
+                <span class="mono">{{ formatTimestamp(record.timestamp) }}</span>
+              }
+              @case ('severity') {
+                <span class="severity-tag" [class]="severityClass(record)">
+                  {{ record.severityText }}
+                </span>
+              }
+              @case ('service') {
+                {{ getServiceDisplay(record) }}
+              }
+              @case ('message') {
+                <span class="message-text" [title]="record.message">{{ record.message }}</span>
+              }
+              @case ('httpMethod') {
+                <span class="mono">{{ record.httpMethod ?? '' }}</span>
+              }
+              @case ('httpPath') {
+                <span class="mono path-text" [title]="record.httpPath ?? ''">{{ record.httpPath ?? '' }}</span>
+              }
+              @case ('httpStatus') {
+                @if (record.httpStatusCode) {
+                  <span class="status-code" [class]="statusClass(record.httpStatusCode)">
+                    {{ record.httpStatusCode }}
+                  </span>
+                }
+              }
+              @case ('traceId') {
+                @if (record.traceId) {
+                  <span
+                    class="mono trace-link"
+                    [title]="record.traceId"
+                    (click)="onTraceClick(record.traceId!, $event)">
+                    {{ record.traceId.slice(0, 8) }}...
+                  </span>
+                }
+              }
+            }
+          </div>
+        }
+
+        <div class="cell col-actions">
+          <button class="copy-btn" (click)="copyRecord(record, $event)" title="Copy JSON">
+            copy
+          </button>
+        </div>
+      </div>
+
+      @if (isExpanded(record)) {
+        <app-log-detail [record]="record" />
+      }
+    </div>
+  </cdk-virtual-scroll-viewport>
+</div>

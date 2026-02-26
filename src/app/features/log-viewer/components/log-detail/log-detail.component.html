@@ -1,0 +1,151 @@
+<div class="detail-panel">
+  <!-- OTLP Envelope -->
+  <div class="detail-section">
+    <div class="section-header">OTLP Envelope</div>
+    <div class="kv-grid">
+      <span class="kv-key">Timestamp</span>
+      <span class="kv-val mono">{{ record().timeUnixNano }}</span>
+
+      <span class="kv-key">Severity</span>
+      <span class="kv-val">{{ record().severityText }} ({{ record().severityNumber }})</span>
+
+      @if (record().envelopeTraceId) {
+        <span class="kv-key">Trace ID</span>
+        <span class="kv-val mono clickable" (click)="filterByTraceId(record().envelopeTraceId!)">
+          {{ record().envelopeTraceId }}
+        </span>
+      }
+
+      @if (record().envelopeSpanId) {
+        <span class="kv-key">Span ID</span>
+        <span class="kv-val mono">{{ record().envelopeSpanId }}</span>
+      }
+
+      <span class="kv-key">Source</span>
+      <span class="kv-val mono">{{ record().sourceFile }}:{{ record().sourceLineNumber }}</span>
+    </div>
+  </div>
+
+  <!-- Resource Attributes -->
+  @if (resourceAttrEntries.length > 0) {
+    <div class="detail-section">
+      <div class="section-header">Resource Attributes</div>
+      <div class="kv-grid">
+        @for (entry of resourceAttrEntries; track entry[0]) {
+          <span class="kv-key">{{ entry[0] }}</span>
+          <span class="kv-val mono">{{ entry[1] }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Scope -->
+  @if (record().scopeName) {
+    <div class="detail-section">
+      <div class="section-header">Scope</div>
+      <div class="kv-grid">
+        <span class="kv-key">Name</span>
+        <span class="kv-val">{{ record().scopeName }}</span>
+        @if (record().scopeVersion) {
+          <span class="kv-key">Version</span>
+          <span class="kv-val">{{ record().scopeVersion }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Log Attributes -->
+  @if (logAttrEntries.length > 0) {
+    <div class="detail-section">
+      <div class="section-header">Log Attributes</div>
+      <div class="kv-grid">
+        @for (entry of logAttrEntries; track entry[0]) {
+          <span class="kv-key">{{ entry[0] }}</span>
+          <span class="kv-val mono">{{ entry[1] }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Parsed Body -->
+  <div class="detail-section">
+    <div class="section-header">
+      Parsed Body
+      <div class="section-actions">
+        <button class="action-btn" (click)="copyRawBody()">Copy Raw</button>
+        <button class="action-btn" (click)="copyFullRecord()">Copy All</button>
+      </div>
+    </div>
+
+    <!-- Structured fields -->
+    <div class="kv-grid">
+      @if (record().message) {
+        <span class="kv-key">Message</span>
+        <span class="kv-val">{{ record().message }}</span>
+      }
+      @if (record().bodyLevel) {
+        <span class="kv-key">Level</span>
+        <span class="kv-val">{{ record().bodyLevel }}</span>
+      }
+      @if (record().httpMethod) {
+        <span class="kv-key">HTTP</span>
+        <span class="kv-val mono">{{ record().httpMethod }} {{ record().httpPath }} {{ record().httpStatusCode }}</span>
+      }
+      @if (record().userId) {
+        <span class="kv-key">User ID</span>
+        <span class="kv-val mono">{{ record().userId }}</span>
+      }
+      @if (record().userSessionId) {
+        <span class="kv-key">Session</span>
+        <span class="kv-val mono">{{ record().userSessionId }}</span>
+      }
+      @if (record().userIp) {
+        <span class="kv-key">IP</span>
+        <span class="kv-val mono">{{ record().userIp }}</span>
+      }
+      @if (record().traceId) {
+        <span class="kv-key">Trace ID</span>
+        <span class="kv-val mono clickable" (click)="filterByTraceId(record().traceId!)">
+          {{ record().traceId }}
+        </span>
+      }
+      @if (record().serviceName) {
+        <span class="kv-key">Service</span>
+        <span class="kv-val clickable" (click)="filterByService(record().serviceName!)">
+          {{ record().serviceName }}
+        </span>
+      }
+      @if (record().serviceVersion) {
+        <span class="kv-key">Version</span>
+        <span class="kv-val">{{ record().serviceVersion }}</span>
+      }
+      @if (record().tags?.length) {
+        <span class="kv-key">Tags</span>
+        <span class="kv-val">
+          @for (tag of record().tags; track tag) {
+            <span class="tag-chip">{{ tag }}</span>
+          }
+        </span>
+      }
+    </div>
+
+    <!-- Body attrs -->
+    @if (bodyAttrEntries.length > 0) {
+      <div class="subsection">
+        <div class="subsection-label">Custom Attributes</div>
+        <div class="kv-grid">
+          @for (entry of bodyAttrEntries; track entry[0]) {
+            <span class="kv-key">{{ entry[0] }}</span>
+            <span class="kv-val mono">{{ entry[1] }}</span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Raw JSON -->
+    <div class="subsection">
+      <div class="subsection-label">JSON</div>
+      <pre class="json-block">{{ bodyParsedJson }}</pre>
+    </div>
+  </div>
+</div>

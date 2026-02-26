@@ -1,21 +1,25 @@
-import { Component, HostListener, inject, viewChild, afterNextRender } from '@angular/core';
+import { Component, HostListener, inject, viewChild, afterNextRender, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs';
 import { GraphViewerComponent } from './features/graph-viewer/graph-viewer.component';
 import { YamlPanelComponent } from './features/yaml-panel/yaml-panel.component';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
 import { NodeDetailComponent } from './features/node-detail/node-detail.component';
+import { LogViewerComponent } from './features/log-viewer/log-viewer.component';
 import { ConfigStateService, ConfigUrlService } from './core/services';
+
+export type AppTab = 'config' | 'logs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [GraphViewerComponent, YamlPanelComponent, ToolbarComponent, NodeDetailComponent],
+  imports: [GraphViewerComponent, YamlPanelComponent, ToolbarComponent, NodeDetailComponent, LogViewerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class AppComponent {
 
+  readonly activeTab = signal<AppTab>('config');
   readonly yamlPanel = viewChild(YamlPanelComponent);
 
   private readonly route = inject(ActivatedRoute);
@@ -79,6 +83,10 @@ export class AppComponent {
   @HostListener('document:mouseup')
   onMouseUp(): void {
     this.isResizing = false;
+  }
+
+  setActiveTab(tab: AppTab): void {
+    this.activeTab.set(tab);
   }
 
   onGoToLine(line: number): void {

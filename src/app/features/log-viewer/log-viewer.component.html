@@ -1,0 +1,19 @@
+<div class="log-viewer">
+  <div class="log-viewer-sidebar">
+    <app-file-upload />
+  </div>
+
+  <div class="log-viewer-main">
+    @if (state.hasRecords()) {
+      <app-log-summary />
+      <app-log-timeline />
+      <app-log-filters />
+      <app-log-table />
+    } @else if (!state.isLoading()) {
+      <div class="empty-state">
+        <p class="empty-title">No logs loaded</p>
+        <p class="empty-hint">Upload OTLP JSON log files using the panel on the left to get started.</p>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,66 @@
+<div class="file-upload-area">
+  <div
+    class="drop-zone"
+    [class.drag-over]="isDragOver()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+
+    @if (state.isLoading()) {
+      <div class="loading-indicator">
+        <div class="spinner"></div>
+        @if (state.parseProgress(); as progress) {
+          <span>Parsing {{ progress.fileName }}... {{ progress.percent }}%</span>
+        } @else {
+          <span>Reading file...</span>
+        }
+      </div>
+    } @else if (!state.hasRecords()) {
+      <div class="upload-prompt">
+        <span class="upload-icon">+</span>
+        <p>Drop OTLP JSON log files here</p>
+        <p class="upload-hint">or click to browse</p>
+      </div>
+    } @else {
+      <div class="upload-compact">
+        <span class="upload-icon-sm">+</span>
+        <span>Add more files</span>
+      </div>
+    }
+
+    <input
+      type="file"
+      class="file-input"
+      accept=".json"
+      multiple
+      (change)="onFileSelected($event)" />
+  </div>
+
+  @if (state.loadedFiles().length > 0) {
+    <div class="file-list">
+      @for (file of state.loadedFiles(); track file.fileName) {
+        <div class="file-item">
+          <div class="file-info">
+            <span class="file-name">{{ file.fileName }}</span>
+            <div class="file-meta">
+              <span>{{ formatFileSize(file.fileSize) }}</span>
+              <span class="separator">|</span>
+              <span>{{ file.recordCount }} records</span>
+              @if (file.parseErrors > 0) {
+                <span class="separator">|</span>
+                <span class="parse-errors">{{ file.parseErrors }} errors</span>
+              }
+              @if (file.isRotated) {
+                <span class="separator">|</span>
+                <span class="rotated-badge">rotated</span>
+              }
+            </div>
+          </div>
+          <button class="remove-btn" (click)="removeFile(file.fileName)" title="Remove file">
+            &times;
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

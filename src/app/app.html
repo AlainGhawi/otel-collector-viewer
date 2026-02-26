@@ -1,7 +1,22 @@
 <div class="app-layout">
     <app-toolbar />
 
-    <div class="app-content">
+    <div class="tab-bar">
+        <button
+            class="tab-button"
+            [class.active]="activeTab() === 'config'"
+            (click)="setActiveTab('config')">
+            Config Viewer
+        </button>
+        <button
+            class="tab-button"
+            [class.active]="activeTab() === 'logs'"
+            (click)="setActiveTab('logs')">
+            Log Viewer
+        </button>
+    </div>
+
+    <div class="app-content" [hidden]="activeTab() !== 'config'">
         <div class="graph-area">
             <app-graph-viewer />
             <app-node-detail (goToLine)="onGoToLine($event)" />
@@ -16,4 +31,10 @@
             <app-yaml-panel #yamlPanel />
         </div>
     </div>
+
+    @defer (when activeTab() === 'logs') {
+        <div class="app-content log-viewer-content" [hidden]="activeTab() !== 'logs'">
+            <app-log-viewer />
+        </div>
+    }
 </div>

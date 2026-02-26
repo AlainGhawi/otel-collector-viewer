@@ -1,0 +1,92 @@
+<div class="filter-bar">
+  <!-- Search -->
+  <div class="filter-group search-group">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search logs..."
+      [value]="searchText()"
+      (input)="onSearchInput($any($event.target).value)" />
+  </div>
+
+  <!-- Severity pills -->
+  <div class="filter-group">
+    <span class="filter-label">Severity</span>
+    <div class="pill-group">
+      @for (level of severityLevels; track level) {
+        <button
+          class="pill severity-pill"
+          [class]="'severity-' + level.toLowerCase()"
+          [class.inactive]="!isSeverityActive(level)"
+          (click)="toggleSeverity(level)">
+          {{ level }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Service dropdown -->
+  @if (state.availableServices().length > 0) {
+    <div class="filter-group">
+      <span class="filter-label">Service</span>
+      <select class="filter-select" (change)="onServiceChange($event)">
+        <option value="">All</option>
+        @for (svc of state.availableServices(); track svc) {
+          <option [value]="svc">{{ svc }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <!-- HTTP status pills -->
+  <div class="filter-group">
+    <span class="filter-label">HTTP</span>
+    <div class="pill-group">
+      @for (cat of httpCategories; track cat) {
+        <button
+          class="pill http-pill"
+          [class]="'http-' + cat"
+          [class.inactive]="!isHttpCategoryActive(cat)"
+          (click)="toggleHttpCategory(cat)">
+          {{ cat }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Time range -->
+  <div class="filter-group">
+    <span class="filter-label">Time</span>
+    <input
+      type="datetime-local"
+      class="time-input"
+      [value]="timeStart()"
+      (input)="onTimeStartChange($any($event.target).value)"
+      step="1" />
+    <span class="time-separator">—</span>
+    <input
+      type="datetime-local"
+      class="time-input"
+      [value]="timeEnd()"
+      (input)="onTimeEndChange($any($event.target).value)"
+      step="1" />
+  </div>
+
+  <!-- Trace ID -->
+  <div class="filter-group">
+    <span class="filter-label">Trace</span>
+    <input
+      type="text"
+      class="trace-input"
+      placeholder="Trace ID"
+      [value]="traceIdInput()"
+      (input)="onTraceIdChange($any($event.target).value)" />
+  </div>
+
+  <!-- Clear filters -->
+  @if (activeFilterCount > 0) {
+    <button class="clear-btn" (click)="clearAllFilters()">
+      Clear ({{ activeFilterCount }})
+    </button>
+  }
+</div>
