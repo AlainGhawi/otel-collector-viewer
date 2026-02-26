@@ -8,6 +8,10 @@ Parse, validate, visualize, and edit your OTel Collector pipelines as node-based
 ![CI](https://img.shields.io/github/actions/workflow/status/AlainGhawi/otel-collector-viewer/ci.yml?label=CI)
 ![GitHub Pages](https://img.shields.io/github/actions/workflow/status/AlainGhawi/otel-collector-viewer/deploy.yml?label=Deploy)
 
+## Demo
+
+> 🚧 Hosted on [GitHub Pages](https://alainghawi.github.io/otel-collector-viewer/)
+
 
 ![OTel Collector Viewer](docs/preview.png)
 
@@ -21,10 +25,6 @@ Parse, validate, visualize, and edit your OTel Collector pipelines as node-based
 - **Validation & auto-repair**: Detects dangling references, unused components, and empty pipelines. Auto-removes invalid pipeline references. Clickable error links jump to the problem line.
 - **Import/Export**: Load YAML files, export edited configs, copy to clipboard.
 - **Shareable config links**: Share configurations via URL — click the Share button to copy a link that encodes your entire config. No file uploads required, completely client-side.
-
-## Demo
-
-> 🚧 Hosted on [GitHub Pages](https://alainghawi.github.io/otel-collector-viewer/)
 
 ## Getting Started
 
