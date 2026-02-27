@@ -85,13 +85,18 @@ export class LogTimelineComponent {
     });
   }
 
+  private resizeRafId = 0;
+
   private setupResizeObserver(): void {
     const container = this.containerRef().nativeElement;
     this.resizeObserver = new ResizeObserver(() => {
-      const records = this.state.allRecords();
-      if (records.length > 0) {
-        this.render(records);
-      }
+      cancelAnimationFrame(this.resizeRafId);
+      this.resizeRafId = requestAnimationFrame(() => {
+        const records = this.state.allRecords();
+        if (records.length > 0) {
+          this.render(records);
+        }
+      });
     });
     this.resizeObserver.observe(container);
     this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());

@@ -73,6 +73,7 @@ export class GraphViewerComponent implements AfterViewInit {
 
     this.destroyRef.onDestroy(() => {
       this.resizeObserver?.disconnect();
+      cancelAnimationFrame(this.resizeRafId);
       d3.select('body').on('keydown.graph', null);
     });
   }
@@ -119,12 +120,17 @@ export class GraphViewerComponent implements AfterViewInit {
     });
   }
 
+  private resizeRafId = 0;
+
   private setupResizeObserver(): void {
     this.resizeObserver = new ResizeObserver(() => {
-      const graphData = this.state.graphData();
-      if (graphData.nodes.length > 0) {
-        this.renderGraph(graphData);
-      }
+      cancelAnimationFrame(this.resizeRafId);
+      this.resizeRafId = requestAnimationFrame(() => {
+        const graphData = this.state.graphData();
+        if (graphData.nodes.length > 0) {
+          this.renderGraph(graphData);
+        }
+      });
     });
     this.resizeObserver.observe(this.containerRef().nativeElement);
   }
