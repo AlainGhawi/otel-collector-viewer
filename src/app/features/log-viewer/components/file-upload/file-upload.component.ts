@@ -1,4 +1,4 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { LogViewerStateService } from '../../../../core/services/log-viewer-state.service';
 import { formatFileSize, isRotatedFile } from '../../../../core/utils/otlp-log-helpers';
 
@@ -51,8 +51,7 @@ export class FileUploadComponent {
   }
 
   private loadFiles(files: FileList): void {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    for (const file of Array.from(files)) {
       if (file.name.endsWith('.json')) {
         this.state.loadFile(file);
       }

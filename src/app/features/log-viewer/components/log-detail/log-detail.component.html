@@ -107,7 +107,7 @@
       }
       @if (record().serviceName) {
         <span class="kv-key">Service</span>
-        <span class="kv-val clickable" (click)="filterByService(record().serviceName!)">
+        <span class="kv-val clickable" tabindex="0" role="button" (click)="filterByService(record().serviceName!)" (keydown.enter)="filterByService(record().serviceName!)">
           {{ record().serviceName }}
         </span>
       }

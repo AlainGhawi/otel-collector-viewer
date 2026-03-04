@@ -127,12 +127,12 @@ export class LogTimelineComponent {
     const thresholds = x.ticks(binCount);
 
     // Create bins per severity
-    const binnedData: Array<{
+    const binnedData: {
       x0: Date;
       x1: Date;
       counts: Record<SeverityLevel, number>;
       total: number;
-    }> = [];
+    }[] = [];
 
     for (let i = 0; i < thresholds.length - 1; i++) {
       const x0 = thresholds[i];
@@ -154,18 +154,11 @@ export class LogTimelineComponent {
 
     const maxTotal = d3.max(binnedData, (d) => d.total) ?? 1;
 
-    const y = d3
-      .scaleLinear()
-      .domain([0, maxTotal])
-      .range([innerHeight, 0]);
-
     const g = svg
       .append('g')
       .attr('transform', `translate(${MARGIN.left},${MARGIN.top})`);
 
     // Draw stacked bars
-    const barWidth = Math.max(1, innerWidth / binnedData.length - 1);
-
     for (const bin of binnedData) {
       let yOffset = innerHeight;
       for (const severity of SEVERITY_ORDER) {

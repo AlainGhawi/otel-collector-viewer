@@ -1,4 +1,4 @@
-<div class="table-container" (click)="closeFilterDropdown()">
+<div class="table-container" role="presentation" (click)="closeFilterDropdown()" (keydown.escape)="closeFilterDropdown()">
   <!-- Table controls -->
   <div class="table-controls">
     <button class="control-btn" (click)="toggleTimezone()">
@@ -34,20 +34,20 @@
 
         <!-- Timestamp column with sort -->
         @if (col.key === 'timestamp') {
-          <span class="header-label" (click)="toggleSort()">
+          <span class="header-label" tabindex="0" role="button" (click)="toggleSort()" (keydown.enter)="toggleSort()">
             {{ col.label }}
             <span class="sort-icon">{{ state.sortDirection() === 'asc' ? '▲' : '▼' }}</span>
           </span>
         } @else if (col.filterable) {
           <!-- Filterable column header -->
-          <span class="header-label" (click)="toggleFilterDropdown(col.key, $event)">
+          <span class="header-label" tabindex="0" role="button" (click)="toggleFilterDropdown(col.key, $event)" (keydown.enter)="toggleFilterDropdown(col.key, $event)">
             {{ col.label }}
             <svg class="filter-icon" [class.active]="hasActiveFilter(col.key)" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2h14l-5.5 6.5V14l-3-2v-3.5z"/></svg>
           </span>
 
           <!-- Filter dropdown -->
           @if (openFilterColumn() === col.key) {
-            <div class="column-filter-dropdown" (click)="$event.stopPropagation()">
+            <div class="column-filter-dropdown" role="dialog" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
               @switch (col.key) {
                 @case ('severity') {
                   @for (sev of availableSeverities(); track sev) {
@@ -124,7 +124,10 @@
         class="table-row"
         [class]="severityClass(record)"
         [class.expanded]="isExpanded(record)"
-        (click)="toggleRow(record)">
+        tabindex="0"
+        role="row"
+        (click)="toggleRow(record)"
+        (keydown.enter)="toggleRow(record)">
 
         @for (col of visibleColumns; track col.key) {
           <div class="cell"

@@ -7,7 +7,6 @@ import {
   SeverityLevel,
   HttpStatusCategory,
 } from '../../../../core/models/otlp-log.model';
-import { httpStatusToCategory } from '../../../../core/utils/otlp-log-helpers';
 import {
   formatTimestampLocal,
   formatTimestampUTC,
