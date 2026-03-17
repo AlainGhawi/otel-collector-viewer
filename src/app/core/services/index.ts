@@ -8,5 +8,6 @@ export * from './config-url.service';
 export * from './config-validator.service';
 export * from './theme.service';
 export * from './component-library.service';
+export * from './component-registry.service';
 export * from './otlp-log-parser.service';
 export * from './log-viewer-state.service';

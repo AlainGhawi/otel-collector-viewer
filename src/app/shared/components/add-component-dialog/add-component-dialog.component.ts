@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ComponentLibraryService } from '../../../core/services/component-library.service';
 import { ConfigStateService } from '../../../core/services/config-state.service';
 import { ComponentDefinition } from '../../../core/models/component-library.model';
+import { RegistryComponentEntry } from '../../../core/models/component-registry.model';
 import { ComponentType, SignalType, getComponentColor, getSignalColor } from '../../../core/models';
 
 type TabFilter = 'all' | ComponentType;
@@ -36,6 +37,10 @@ export class AddComponentDialogComponent {
   readonly showNewPipeline = signal(false);
   readonly newPipelineSignal = signal<SignalType>('traces');
   readonly newPipelineName = signal('');
+
+  readonly isLoading = computed(() => this.library.isLoading());
+  readonly catalogError = computed(() => this.library.error());
+  readonly componentCount = computed(() => this.filteredComponents().length);
 
   readonly signalTypes: SignalType[] = ['traces', 'metrics', 'logs'];
 
@@ -90,6 +95,12 @@ export class AddComponentDialogComponent {
     this.selectedPipelines.set(new Set());
     this.showNewPipeline.set(false);
     this.newPipelineName.set('');
+
+    // Trigger lazy metadata fetch for un-enriched components
+    const entry = def as RegistryComponentEntry;
+    if (entry.enriched === false) {
+      this.library.enrichComponent(def.componentType, def.type);
+    }
   }
 
   getSignalColor(signal: SignalType): string {

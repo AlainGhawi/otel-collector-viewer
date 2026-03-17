@@ -19,6 +19,9 @@ export type SectionKey = 'receivers' | 'processors' | 'exporters' | 'connectors'
 /** Pipeline role keys (the component arrays within a pipeline definition) */
 export type PipelineRole = 'receivers' | 'processors' | 'exporters';
 
+/** All component types in standard order */
+export const ALL_COMPONENT_TYPES: readonly ComponentType[] = ['receiver', 'processor', 'exporter', 'connector', 'extension'] as const;
+
 /** All section keys in standard order */
 export const ALL_SECTION_KEYS: readonly SectionKey[] = ['receivers', 'processors', 'exporters', 'connectors', 'extensions'] as const;
 

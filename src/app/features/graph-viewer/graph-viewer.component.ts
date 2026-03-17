@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import { ConfigStateService } from '../../core/services/config-state.service';
+import { ComponentLibraryService } from '../../core/services/component-library.service';
 import {
   GraphNode,
   GraphEdge,
@@ -16,26 +17,16 @@ import {
   ComponentType,
   getComponentColor,
 } from '../../core/models';
-
-const NODE_WIDTH = 180;
-const NODE_HEIGHT = 52;
-const COLUMN_GAP = 260;   // horizontal space between receiver → processor → exporter
-const ROW_GAP = 80;       // vertical space between nodes in the same column
-const PADDING_X = 80;
-const PADDING_Y = 80;
-
-const PIPELINE_COLORS = [
-  '#f472b6', // pink
-  '#38bdf8', // cyan
-  '#4ade80', // green
-  '#fb923c', // orange
-  '#a78bfa', // purple
-  '#facc15', // yellow
-  '#f87171', // red
-  '#2dd4bf', // teal
-];
-
-const COLUMN_ORDER: ComponentType[] = ['extension', 'receiver', 'processor', 'exporter', 'connector'];
+import {
+  NODE_WIDTH,
+  NODE_HEIGHT,
+  COLUMN_GAP,
+  ROW_GAP,
+  PADDING_X,
+  PADDING_Y,
+  PIPELINE_COLORS,
+  COLUMN_ORDER,
+} from './graph-viewer.constants';
 
 interface PositionedNode extends GraphNode {
   px: number;
@@ -53,6 +44,7 @@ export class GraphViewerComponent implements AfterViewInit {
   readonly containerRef = viewChild.required<ElementRef<HTMLDivElement>>('graphContainer');
 
   private readonly state = inject(ConfigStateService);
+  private readonly componentLibrary = inject(ComponentLibraryService);
   private readonly destroyRef = inject(DestroyRef);
   private svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   private rootGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -277,6 +269,21 @@ export class GraphViewerComponent implements AfterViewInit {
   private renderNodes(nodes: PositionedNode[]): void {
     const nodeGroup = this.rootGroup.append('g').attr('class', 'nodes');
 
+    // Shared clipPath for node text truncation
+    let defs = this.svg.select<SVGDefsElement>('defs');
+    if (defs.empty()) {
+      defs = this.svg.append('defs');
+    }
+    if (defs.select('#node-text-clip').empty()) {
+      defs.append('clipPath')
+        .attr('id', 'node-text-clip')
+        .append('rect')
+        .attr('x', 18)
+        .attr('y', 0)
+        .attr('width', NODE_WIDTH - 26)
+        .attr('height', NODE_HEIGHT);
+    }
+
     const nodeSelection = nodeGroup
       .selectAll<SVGGElement, PositionedNode>('g')
       .data(nodes, (d: PositionedNode) => d.id)
@@ -318,14 +325,23 @@ export class GraphViewerComponent implements AfterViewInit {
       .attr('fill-opacity', 0.8)
       .text(d => d.componentType.toUpperCase());
 
-    // Component name
+    // Component name (clipped to prevent overflow)
     nodeSelection.append('text')
       .attr('x', 20)
       .attr('y', 38)
       .attr('font-size', '13px')
       .attr('font-weight', '500')
       .attr('fill', 'var(--color-text-secondary)')
+      .attr('clip-path', 'url(#node-text-clip)')
       .text(d => d.label);
+
+    // Tooltip with component description
+    nodeSelection.append('title')
+      .text(d => {
+        const def = this.componentLibrary.getByType(d.componentType)
+          .find(c => c.type === d.component.type);
+        return def?.description ?? `${d.componentType}: ${d.label}`;
+      });
 
     // Hover effects
     nodeSelection

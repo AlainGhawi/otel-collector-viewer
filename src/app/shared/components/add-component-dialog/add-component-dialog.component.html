@@ -25,9 +25,22 @@
     }
   </div>
 
+  <!-- Status bar -->
+  @if (catalogError()) {
+    <div class="catalog-warning">
+      {{ catalogError() }} Showing built-in components.
+    </div>
+  }
+
   <!-- Scrollable area: component list + config sections -->
   <div class="scrollable-body">
     <!-- Component list -->
+    <div class="component-list-header">
+      <span class="component-count">{{ componentCount() }} components</span>
+      @if (isLoading()) {
+        <span class="catalog-loading">Loading more...</span>
+      }
+    </div>
     <div class="component-list">
       @for (comp of filteredComponents(); track comp.type + comp.componentType) {
         <button
