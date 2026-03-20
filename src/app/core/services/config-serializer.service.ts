@@ -49,7 +49,7 @@ export class ConfigSerializerService {
     }
     this.patchServiceNode(doc, config);
 
-    return doc.toString({ indent: 2, lineWidth: 120 });
+    return doc.toString({ indent: 2, lineWidth: 120, flowCollectionPadding: false });
   }
 
   reformatYaml(rawYaml: string): string {
@@ -80,7 +80,7 @@ export class ConfigSerializerService {
       if (isMap(node)) this.flowShortArrays(node);
     }
 
-    return doc.toString({ indent: 2, lineWidth: 120 });
+    return doc.toString({ indent: 2, lineWidth: 120, flowCollectionPadding: false });
   }
 
   private flowShortArrays(node: unknown): void {
